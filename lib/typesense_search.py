@@ -58,7 +58,7 @@ def make_query_subset(
     :return: Query response info
     :rtype: dict
     """
-    collection = pd.DataFrame()
+    collection = pd.DataFrame(columns=["id"])
     response = search(text, collection_name, client)
     if response["found"] > 0:
         collection_dict = {
@@ -71,4 +71,4 @@ def make_query_subset(
         }
         collection = pd.DataFrame(data=collection_dict)
         collection = collection[collection["num_tokens_dropped"] < drop_token_filter]
-    return collection
+    return collection.set_index("id")

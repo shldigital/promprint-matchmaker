@@ -6,8 +6,9 @@ import pandas as pd
 import typesense
 
 from dotenv import load_dotenv
-from lib.typesense_search import search
+from lib.typesense_search import make_query_subset
 from pathlib import Path
+from thefuzz import fuzz
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -54,6 +55,10 @@ parser.add_argument('-c', '--collection',
                     default='nls',
                     choices=['nls'],
                     help="Name of collection to search in")
+parser.add_argument('-t', '--threshold',
+                    type=int,
+                    default=79,
+                    help="Threshold fuzzy matching score, keep scores above this")
 
 subparsers = parser.add_subparsers(help="Search algorithms to use",
                                    dest='command')
@@ -70,10 +75,12 @@ typesense_parser.add_argument('-p', '--port',
                               type=int,
                               default=8108,
                               help="Port for typesense server")
-typesense_parser.add_argument('-c', '--collection',
-                              type=str,
-                              default='nls',
-                              help="Name of collection to search in")
+
+local_parser = subparsers.add_parser('local',
+                                     help='Use full local collection')
+local_parser.add_argument('collection',
+                          type=lambda p: Path(p),
+                          help='File of cleaned collection data in tsv format')
 
 
 def main(args=None) -> None:
@@ -91,8 +98,15 @@ def main(args=None) -> None:
         raise KeyError("Input file does not have the expected columns: "
                        f"{register_columns}")
 
+    match_columns = [
+        "register_id",
+        "register_clean_title",
+        "score",
+        "creator"
+    ]
+
     client: typesense.Client = None
-    if args.command == typesense:
+    if args.command == "typesense":
         API_KEY = os.environ.get('TYPESENSE_KEY', args.key)
         HOSTNAME = os.environ.get('TYPESENSE_HOST', args.address)
         PORT = os.environ.get('TYPESENSE_PORT', args.port)
@@ -106,19 +120,39 @@ def main(args=None) -> None:
             'connection_timeout_seconds': 2
         })
 
-    match_columns = [
-        "id",
-        "clean_title",
-        "score",
-        "num_tokens_dropped",
-        "tokens_matched",
-        "typo_prefix_score"
-    ]
-    matches = pd.DataFrame(columns=match_columns)
-    unmatched = pd.DataFrame(columns=["id", "clean_title"])
-    for title in register["clean_title"]:
-        if args.command == typesense:
-            pass
+    collection = pd.DataFrame()
+    if args.command == "local":
+        collection = pd.read_csv(args.collection, sep='\t')
+        collection = collection.set_index("id")
+
+    match_list = []
+    unmatched = pd.DataFrame(columns=register_columns)
+    for index, row in register.iterrows():
+        title = row["clean_title"]
+        row_id = row["id"]
+        if not isinstance(title, str):
+            continue
+        new_matches = pd.DataFrame(columns=match_columns)
+        if args.command == "typesense":
+            collection = make_query_subset(title, args.collection, 2, client)
+        if collection.shape[0] > 0:
+            #collection = collection.rename(columns={"clean_title": "collection_clean_title"})
+            new_matches["collection_id"] = collection.index
+            #scores = collection["collection_clean_title"].apply(lambda t: fuzz.partial_ratio(title, t))
+            scores = collection["clean_title"].apply(lambda t: fuzz.partial_ratio(title, t))
+            new_matches["score"] = scores.reset_index(drop=True)
+            new_matches["register_id"] = pd.Series([row_id] * new_matches.shape[0])
+            new_matches["register_clean_title"] = pd.Series([title] * new_matches.shape[0])
+            new_matches = new_matches[new_matches["score"] > args.threshold]
+            new_matches = new_matches.join(collection, on="collection_id", lsuffix='_register', rsuffix='_collection')
+        match_list.append(new_matches)
+    matches = pd.concat(match_list)
+    print(matches.shape)
+    print(matches.head())
+    print(matches.columns)
+    #print(matches["collection_clean_title"].head(2), matches["register_clean_title"].head(2))
+    # TODO: include register headers in match output
+    # TODO: disambiguate title from register and collection
 
 
 if __name__ == "__main__":
