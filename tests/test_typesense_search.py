@@ -5,6 +5,7 @@ import typesense
 
 from dotenv import load_dotenv
 from pathlib import Path
+from lib.typesense_search import search, make_query_subset
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -68,3 +69,63 @@ def test_mock_collection_created(typesense_client, test_collection, test_documen
     successes = map(lambda r: r["success"], test_documents)
 
     assert all(successes) and num_documents == df.shape[0]
+
+
+def test_search_full_title_hit(typesense_client, test_collection, test_documents):
+    title = "gods glory in the heavens"
+    collection = test_collection["name"]
+    response = search(title, collection, typesense_client)
+    assert response["found"] == 1 and response["hits"][0]["document"]["title"] == title
+
+
+def test_query_subset_single_find(typesense_client, test_collection, test_documents):
+    title = "gods glory in the heavens"
+    collection_name = test_collection["name"]
+    collection = make_query_subset(title, collection_name, 2, typesense_client)
+    assert collection["clean_title"][0] == title
+
+
+def test_query_subset_fuzzy_find(typesense_client, test_collection, test_documents):
+    title = "godt glort in the heavent"
+    expected_title = "gods glory in the heavens"
+    collection_name = test_collection["name"]
+    collection = make_query_subset(title, collection_name, 2, typesense_client)
+    assert collection["clean_title"][0] == expected_title
+
+
+def test_query_subset_multiple_found(typesense_client, test_collection, test_documents):
+    title = "map of"
+    collection_name = test_collection["name"]
+    collection = make_query_subset(title, collection_name, 2, typesense_client)
+    assert collection.shape[0] > 1
+
+
+def test_query_subset_drop_token_left(typesense_client, test_collection, test_documents):
+    title = "our gods glory in the heavens"
+    collection_name = test_collection["name"]
+    collection = make_query_subset(title, collection_name, 2, typesense_client)
+    assert collection.shape[0] > 0 and collection["num_tokens_dropped"][0] == 1
+
+
+def test_query_subset_drop_tokens_right(typesense_client, test_collection, test_documents):
+    # Q: is this expected behaviour when setting 'drop_tokens_mode' to 'left_to_right'
+    # Does it just mean it *tries* left first then right then left again,
+    # Rather than only dropping from left? Seems like it
+    title = "gods glory in the heavens above"
+    collection_name = test_collection["name"]
+    collection = make_query_subset(title, collection_name, 2, typesense_client)
+    assert collection.shape[0] == 1
+
+
+def test_query_subset_drop_tokens_filtered(typesense_client, test_collection, test_documents):
+    title = "but our gods glory in the heavens"
+    collection_name = test_collection["name"]
+    collection = make_query_subset(title, collection_name, 2, typesense_client)
+    assert collection.shape[0] == 0
+
+
+def test_query_subset_not_found(typesense_client, test_collection, test_documents):
+    title = "foo bar baz"
+    collection_name = test_collection["name"]
+    collection = make_query_subset(title, collection_name, 2, typesense_client)
+    assert collection.shape[0] == 0
