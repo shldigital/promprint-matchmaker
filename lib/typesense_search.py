@@ -62,8 +62,8 @@ def make_query_subset(
     response = search(text, collection_name, client)
     if response["found"] > 0:
         collection_dict = {
-            "collection_id": map(lambda h: h["document"]["id"], response["hits"]),
-            "collection_clean_title": map(lambda h: h["document"]["title"], response["hits"]),
+            "id": map(lambda h: h["document"]["id"], response["hits"]),
+            "clean_title": map(lambda h: h["document"]["title"], response["hits"]),
             "typesense_score": map(lambda h: h["text_match_info"]["score"], response["hits"]),
             "num_tokens_dropped": map(lambda h: h["text_match_info"]["num_tokens_dropped"], response["hits"]),
             "tokens_matched": map(lambda h: h["text_match_info"]["tokens_matched"], response["hits"]),

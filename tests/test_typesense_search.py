@@ -82,7 +82,7 @@ def test_query_subset_single_find(typesense_client, test_collection, test_docume
     title = "gods glory in the heavens"
     collection_name = test_collection["name"]
     collection = make_query_subset(title, collection_name, 2, typesense_client)
-    assert collection["collection_clean_title"][0] == title
+    assert collection["clean_title"][0] == title
 
 
 def test_query_subset_fuzzy_find(typesense_client, test_collection, test_documents):
@@ -90,7 +90,7 @@ def test_query_subset_fuzzy_find(typesense_client, test_collection, test_documen
     expected_title = "gods glory in the heavens"
     collection_name = test_collection["name"]
     collection = make_query_subset(title, collection_name, 2, typesense_client)
-    assert collection["collection_clean_title"][0] == expected_title
+    assert collection["clean_title"][0] == expected_title
 
 
 def test_query_subset_multiple_found(typesense_client, test_collection, test_documents):
