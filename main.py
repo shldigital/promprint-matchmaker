@@ -47,6 +47,11 @@ parser = argparse.ArgumentParser(
 parser.add_argument('register',
                     type=lambda p: Path(p),
                     help='File of cleaned register data in csv format')
+parser.add_argument('outpath',
+                    type=lambda p: Path(p),
+                    help='Output file location')
+
+
 parser.add_argument('-d', '--debug',
                     action='store_true',
                     help='Print debug messages')
@@ -126,7 +131,6 @@ def main(args=None) -> None:
         collection = collection.set_index("id")
 
     match_list = []
-    unmatched = pd.DataFrame(columns=register_columns)
     for index, row in register.iterrows():
         title = row["clean_title"]
         row_id = row["id"]
@@ -136,9 +140,7 @@ def main(args=None) -> None:
         if args.command == "typesense":
             collection = make_query_subset(title, args.collection, 2, client)
         if collection.shape[0] > 0:
-            #collection = collection.rename(columns={"clean_title": "collection_clean_title"})
             new_matches["collection_id"] = collection.index
-            #scores = collection["collection_clean_title"].apply(lambda t: fuzz.partial_ratio(title, t))
             scores = collection["clean_title"].apply(lambda t: fuzz.partial_ratio(title, t))
             new_matches["score"] = scores.reset_index(drop=True)
             new_matches["register_id"] = pd.Series([row_id] * new_matches.shape[0])
@@ -146,11 +148,15 @@ def main(args=None) -> None:
             new_matches = new_matches[new_matches["score"] > args.threshold]
             new_matches = new_matches.join(collection, on="collection_id", lsuffix='_register', rsuffix='_collection')
         match_list.append(new_matches)
-    matches = pd.concat(match_list)
-    print(matches.shape)
-    print(matches.head())
-    print(matches.columns)
-    #print(matches["collection_clean_title"].head(2), matches["register_clean_title"].head(2))
+    matches: pd.DataFrame = pd.concat(match_list).set_index("register_id")
+    matches.to_csv(args.outpath / "matches.csv")
+    unmatched = register.set_index("id").drop(matches.index, axis='index')
+    unmatched.to_csv(args.outpath / "unmatched.csv")
+    n_register = register.shape[0]
+    n_unmatched = unmatched.shape[0]
+    n_matched = n_register - n_unmatched
+    print(f'No. of matched entries: {n_matched}')
+    print(f'No. of unmatched entries: {n_unmatched} / {n_register}')
     # TODO: include register headers in match output
     # TODO: disambiguate title from register and collection
 
