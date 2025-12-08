@@ -6,9 +6,9 @@ import pandas as pd
 import typesense
 
 from dotenv import load_dotenv
+from lib.helpers import match_score
 from lib.typesense_search import make_query_subset
 from pathlib import Path
-from thefuzz import fuzz
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -141,7 +141,7 @@ def main(args=None) -> None:
             collection = make_query_subset(title, args.collection, 2, client)
         if collection.shape[0] > 0:
             new_matches["collection_id"] = collection.index
-            scores = collection["clean_title"].apply(lambda t: fuzz.partial_ratio(title, t))
+            scores = collection["clean_title"].apply(lambda t: match_score(title, t))
             new_matches["score"] = scores.reset_index(drop=True)
             new_matches["register_id"] = pd.Series([row_id] * new_matches.shape[0])
             new_matches["register_clean_title"] = pd.Series([title] * new_matches.shape[0])
