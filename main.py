@@ -67,6 +67,9 @@ parser.add_argument('-t', '--threshold',
 
 subparsers = parser.add_subparsers(help="Search algorithms to use",
                                    dest='command')
+
+subparsers.required = True
+
 typesense_parser = subparsers.add_parser('typesense',
                                          help='Use typesense to search')
 typesense_parser.add_argument('-k', '--key',
