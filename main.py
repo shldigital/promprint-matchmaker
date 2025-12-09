@@ -110,12 +110,12 @@ def main(args=None) -> None:
     if not all(name in register.columns for name in register_columns):
         raise KeyError("Input file does not have the expected columns: "
                        f"{register_columns}")
+    register = register.set_index("id")
 
     match_columns = [
-        "register_id",
-        "register_clean_title",
+        "id_register",
         "score",
-        "creator"
+        "id_collection",
     ]
 
     client: typesense.Client = None
@@ -141,7 +141,7 @@ def main(args=None) -> None:
     match_list = []
     for index, row in register.iterrows():
         title = row["clean_title"]
-        row_id = row["id"]
+        row_id = index
         if not isinstance(title, str):
             continue
         new_matches = pd.DataFrame(columns=match_columns)
@@ -150,25 +150,27 @@ def main(args=None) -> None:
         min_len = collection["clean_title"].map(lambda t: len(t.split(" ")) > args.word_threshold)
         collection = collection[min_len]
         if collection.shape[0] > 0:
-            new_matches["collection_id"] = collection.index
+            new_matches["id_collection"] = collection.index
             scores = collection["clean_title"].apply(lambda t: match_score(title, t))
             new_matches["score"] = scores.reset_index(drop=True)
-            new_matches["register_id"] = pd.Series([row_id] * new_matches.shape[0])
-            new_matches["register_clean_title"] = pd.Series([title] * new_matches.shape[0])
             new_matches = new_matches[new_matches["score"] > args.score_threshold]
-            new_matches = new_matches.join(collection, on="collection_id", lsuffix='_register', rsuffix='_collection')
+            new_matches["id_register"] = pd.Series([row_id] * new_matches.shape[0])
+            new_matches = new_matches.join(
+                collection, on="id_collection", lsuffix='_register', rsuffix='_collection')
+            new_matches = new_matches.set_index("id_register")
+            new_matches = register.join(
+                new_matches, how="inner", lsuffix="_register", rsuffix='_collection')
+
         match_list.append(new_matches)
-    matches: pd.DataFrame = pd.concat(match_list).set_index("register_id")
+    matches: pd.DataFrame = pd.concat(match_list)
     matches.to_csv(args.outpath / "matches.csv")
-    unmatched = register.set_index("id").drop(matches.index, axis='index')
+    unmatched = register.drop(matches.index, axis='index')
     unmatched.to_csv(args.outpath / "unmatched.csv")
     n_register = register.shape[0]
     n_unmatched = unmatched.shape[0]
     n_matched = n_register - n_unmatched
     print(f'No. of matched entries: {n_matched}')
     print(f'No. of unmatched entries: {n_unmatched} / {n_register}')
-    # TODO: include register headers in match output
-    # TODO: disambiguate title from register and collection
 
 
 if __name__ == "__main__":
