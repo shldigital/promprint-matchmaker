@@ -60,10 +60,15 @@ parser.add_argument('-c', '--collection',
                     default='nls',
                     choices=['nls'],
                     help="Name of collection to search in")
-parser.add_argument('-t', '--threshold',
+parser.add_argument('-t', '--score_threshold',
                     type=int,
                     default=79,
                     help="Threshold fuzzy matching score, keep scores above this")
+
+parser.add_argument('-w', '--word_threshold',
+                    type=int,
+                    default=1,
+                    help="Threshold number of words/tokens for a collection title to be considered for matching")
 
 subparsers = parser.add_subparsers(help="Search algorithms to use",
                                    dest='command')
@@ -142,13 +147,15 @@ def main(args=None) -> None:
         new_matches = pd.DataFrame(columns=match_columns)
         if args.command == "typesense":
             collection = make_query_subset(title, args.collection, 2, client)
+        min_len = collection["clean_title"].map(lambda t: len(t.split(" ")) > args.word_threshold)
+        collection = collection[min_len]
         if collection.shape[0] > 0:
             new_matches["collection_id"] = collection.index
             scores = collection["clean_title"].apply(lambda t: match_score(title, t))
             new_matches["score"] = scores.reset_index(drop=True)
             new_matches["register_id"] = pd.Series([row_id] * new_matches.shape[0])
             new_matches["register_clean_title"] = pd.Series([title] * new_matches.shape[0])
-            new_matches = new_matches[new_matches["score"] > args.threshold]
+            new_matches = new_matches[new_matches["score"] > args.score_threshold]
             new_matches = new_matches.join(collection, on="collection_id", lsuffix='_register', rsuffix='_collection')
         match_list.append(new_matches)
     matches: pd.DataFrame = pd.concat(match_list).set_index("register_id")
