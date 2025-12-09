@@ -82,7 +82,7 @@ def test_query_subset_single_find(typesense_client, test_collection, test_docume
     title = "gods glory in the heavens"
     collection_name = test_collection["name"]
     collection = make_query_subset(title, collection_name, 2, typesense_client)
-    assert collection["clean_title"][0] == title
+    assert collection["clean_title"].iloc[0] == title
 
 
 def test_query_subset_fuzzy_find(typesense_client, test_collection, test_documents):
@@ -90,7 +90,7 @@ def test_query_subset_fuzzy_find(typesense_client, test_collection, test_documen
     expected_title = "gods glory in the heavens"
     collection_name = test_collection["name"]
     collection = make_query_subset(title, collection_name, 2, typesense_client)
-    assert collection["clean_title"][0] == expected_title
+    assert collection["clean_title"].iloc[0] == expected_title
 
 
 def test_query_subset_multiple_found(typesense_client, test_collection, test_documents):
@@ -104,7 +104,7 @@ def test_query_subset_drop_token_left(typesense_client, test_collection, test_do
     title = "our gods glory in the heavens"
     collection_name = test_collection["name"]
     collection = make_query_subset(title, collection_name, 2, typesense_client)
-    assert collection.shape[0] > 0 and collection["num_tokens_dropped"][0] == 1
+    assert collection.shape[0] > 0 and collection["num_tokens_dropped"].iloc[0] == 1
 
 
 def test_query_subset_drop_tokens_right(typesense_client, test_collection, test_documents):
