@@ -67,7 +67,7 @@ parser.add_argument('-t', '--score_threshold',
 
 parser.add_argument('-w', '--word_threshold',
                     type=int,
-                    default=1,
+                    default=2,
                     help="Threshold number of words/tokens for a collection title to be considered for matching")
 
 subparsers = parser.add_subparsers(help="Search algorithms to use",
@@ -147,7 +147,7 @@ def main(args=None) -> None:
         new_matches = pd.DataFrame(columns=match_columns)
         if args.command == "typesense":
             collection = make_query_subset(title, args.collection, 2, client)
-        min_len = collection["clean_title"].map(lambda t: len(t.split(" ")) > args.word_threshold)
+        min_len = collection["clean_title"].map(lambda t: len(t.split(" ")) >= args.word_threshold)
         collection = collection[min_len]
         if collection.shape[0] > 0:
             new_matches["id_collection"] = collection.index
