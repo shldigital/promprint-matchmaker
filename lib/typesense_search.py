@@ -55,8 +55,8 @@ def make_query_subset(
     :type drop_token_filter: int
     :param client: Initialised typesense client providing connection to server
     :type client: typesense.Client
-    :return: Query response info
-    :rtype: dict
+    :return: Subset of collection that matches a typesense query with given parameters
+    :rtype: pd.DataFrame
     """
     collection = pd.DataFrame(columns=["id"])
     response = search(text, collection_name, client)
