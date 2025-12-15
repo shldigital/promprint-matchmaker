@@ -1,6 +1,10 @@
+import pandas as pd
 import pytest
 
-from lib.helpers import match_score
+from lib.helpers import match_score, match_titles
+
+register_file = "./tests/test_files/test_register_export.csv"
+collection_file = "./tests/test_files/test_docs.tsv"
 
 four_token_partial_match_data = [
     ("quick brown fox jumps", "quick brown fox jumps over", 100),
@@ -32,3 +36,67 @@ def test_four_token_partial_match_score(text_1, text_2, score):
 @pytest.mark.parametrize("text_1, text_2, score", three_token_partial_match_data)
 def test_three_token_partial_match_score(text_1, text_2, score):
     assert match_score(text_1, text_2) == score
+
+
+def test_local_title_match():
+    register = pd.read_csv(register_file)
+    register = register.set_index("id")
+    register_row = list(register.iterrows())[1]
+    collection = pd.read_csv(collection_file, sep='\t')
+    collection = collection.set_index("id")
+    score_threshold = 79
+    word_threshold = 1
+    command = "local"
+
+    matches: pd.DataFrame = match_titles(
+        register_row,
+        collection,
+        register,
+        score_threshold,
+        word_threshold,
+        command)
+
+    assert matches.shape[0] == 1
+
+
+def test_local_title_multi_match():
+    register = pd.read_csv(register_file)
+    register = register.set_index("id")
+    register_row = list(register.iterrows())[2]
+    collection = pd.read_csv(collection_file, sep='\t')
+    collection = collection.set_index("id")
+    score_threshold = 90
+    word_threshold = 1
+    command = "local"
+
+    matches: pd.DataFrame = match_titles(
+        register_row,
+        collection,
+        register,
+        score_threshold,
+        word_threshold,
+        command)
+
+    assert matches.shape[0] == 2
+
+
+def test_local_title_threshold_match():
+    register = pd.read_csv(register_file)
+    register = register.set_index("id")
+    register_row = list(register.iterrows())[2]
+    collection = pd.read_csv(collection_file, sep='\t')
+    collection = collection.set_index("id")
+    score_threshold = 95
+    word_threshold = 1
+    command = "local"
+
+    matches: pd.DataFrame = match_titles(
+        register_row,
+        collection,
+        register,
+        score_threshold,
+        word_threshold,
+        command)
+
+    assert matches.shape[0] == 1
+

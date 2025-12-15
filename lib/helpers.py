@@ -1,4 +1,8 @@
 """Helper functions for text matching."""
+import pandas as pd
+import typesense
+
+from lib.typesense_search import make_query_subset
 from thefuzz import fuzz
 
 
@@ -22,3 +26,41 @@ def match_score(text_1: str, text_2: str) -> int:
         text_1 = " ".join(toks[0])
         text_2 = " ".join(toks[1][:4])
     return fuzz.partial_ratio(text_1, text_2)
+
+
+def match_titles(
+        register_row: tuple[str, pd.Series],
+        collection: pd.DataFrame,
+        register: pd.DataFrame,
+        score_threshold: int,
+        word_threshold: int,
+        command: str,
+        client: typesense.Client = None,
+) -> pd.DataFrame:
+    match_columns = [
+        "id_register",
+        "id_collection",
+    ]
+    index, row = register_row
+    title = row["clean_title"]
+    row_id = index
+    matches = pd.DataFrame(columns=match_columns)
+    if not isinstance(title, str):
+        return matches
+    if command == "typesense":
+        collection = make_query_subset(title, collection, 2, client)
+    min_len = collection["clean_title"].map(lambda t: len(t.split(" ")) >= word_threshold)
+    collection = collection[min_len]
+    if collection.shape[0] > 0:
+        matches["id_collection"] = collection.index
+        scores = collection["clean_title"].apply(lambda t: match_score(title, t))
+        scores.name = "score"
+        matches = matches.join(scores, on="id_collection")
+        matches = matches[matches["score"] > score_threshold]
+        matches["id_register"] = pd.Series([row_id] * matches.shape[0], index=matches.index)
+        matches = matches.join(
+            collection, on="id_collection", lsuffix='_register', rsuffix='_collection')
+        matches = matches.set_index("id_register")
+        matches = register.join(
+            matches, how="inner", lsuffix="_register", rsuffix='_collection')
+    return matches

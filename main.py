@@ -6,8 +6,7 @@ import pandas as pd
 import typesense
 
 from dotenv import load_dotenv
-from lib.helpers import match_score
-from lib.typesense_search import make_query_subset
+from lib.helpers import match_titles
 from pathlib import Path
 
 
@@ -139,28 +138,14 @@ def main(args=None) -> None:
         collection = collection.set_index("id")
 
     match_list = []
-    for index, row in register.iterrows():
-        title = row["clean_title"]
-        row_id = index
-        if not isinstance(title, str):
-            continue
-        new_matches = pd.DataFrame(columns=match_columns)
-        if args.command == "typesense":
-            collection = make_query_subset(title, args.collection, 2, client)
-        min_len = collection["clean_title"].map(lambda t: len(t.split(" ")) >= args.word_threshold)
-        collection = collection[min_len]
-        if collection.shape[0] > 0:
-            new_matches["id_collection"] = collection.index
-            scores = collection["clean_title"].apply(lambda t: match_score(title, t))
-            new_matches["score"] = scores.reset_index(drop=True)
-            new_matches = new_matches[new_matches["score"] > args.score_threshold]
-            new_matches["id_register"] = pd.Series([row_id] * new_matches.shape[0])
-            new_matches = new_matches.join(
-                collection, on="id_collection", lsuffix='_register', rsuffix='_collection')
-            new_matches = new_matches.set_index("id_register")
-            new_matches = register.join(
-                new_matches, how="inner", lsuffix="_register", rsuffix='_collection')
-
+    for row in register.iterrows():
+        new_matches = match_titles(row,
+                                   collection,
+                                   register,
+                                   args.score_threshold,
+                                   args.word_threshold,
+                                   args.command,
+                                   client)
         match_list.append(new_matches)
     matches: pd.DataFrame = pd.concat(match_list)
     matches.to_csv(args.outpath / "matches.csv")
