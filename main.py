@@ -111,12 +111,6 @@ def main(args=None) -> None:
                        f"{register_columns}")
     register = register.set_index("id")
 
-    match_columns = [
-        "id_register",
-        "score",
-        "id_collection",
-    ]
-
     client: typesense.Client = None
     if args.command == "typesense":
         API_KEY = os.environ.get('TYPESENSE_KEY', args.key)
@@ -147,10 +141,12 @@ def main(args=None) -> None:
                                    args.command,
                                    client)
         match_list.append(new_matches)
+
     matches: pd.DataFrame = pd.concat(match_list)
     matches.to_csv(args.outpath / "matches.csv")
     unmatched = register.drop(matches.index, axis='index')
     unmatched.to_csv(args.outpath / "unmatched.csv")
+
     n_register = register.shape[0]
     n_unmatched = unmatched.shape[0]
     n_matched = n_register - n_unmatched
