@@ -83,4 +83,5 @@ def match_titles(
         matches = matches.set_index("id_register")
         matches = register.join(
             matches, how="inner", lsuffix="_register", rsuffix='_collection')
+        matches = matches.sort_values(by='score', ascending=False)
     return matches

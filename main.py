@@ -1,5 +1,6 @@
 """Find register's hall entries in registers of library data."""
 import argparse
+import datetime
 import logging
 import os
 import pandas as pd
@@ -154,6 +155,9 @@ def main(args=None) -> None:
 
     matches: pd.DataFrame = pd.concat(match_list)
     matches.to_csv(args.outpath / "matches.csv")
+    # NB this assumes that results have been sorted descending
+    top_matches = matches[~matches.index.duplicated(keep='first')]
+    top_matches.to_csv(args.outpath / (datetime.date.today().strftime("%Y-%m-%d") + "-top-matches.csv"))
     unmatched = register.drop(matches.index, axis='index')
     unmatched.to_csv(args.outpath / "unmatched.csv")
 
