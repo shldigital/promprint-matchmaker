@@ -112,12 +112,6 @@ def main(args=None) -> None:
         console.setLevel(logging.WARNING)
     logging.getLogger('').addHandler(console)
 
-    register = pd.read_csv(args.register)
-    if not all(name in register.columns for name in register_columns):
-        raise KeyError("Input file does not have the expected columns: "
-                       f"{register_columns}")
-    register = register.set_index("id")
-
     client: typesense.Client = None
     if args.command == "typesense":
         API_KEY = os.environ.get('TYPESENSE_KEY', args.key)
@@ -132,6 +126,12 @@ def main(args=None) -> None:
             }],
             'connection_timeout_seconds': 2
         })
+
+    register = pd.read_csv(args.register)
+    if not all(name in register.columns for name in register_columns):
+        raise KeyError("Input file does not have the expected columns: "
+                       f"{register_columns}")
+    register = register.set_index("id")
 
     collection = pd.DataFrame()
     if args.command == "local":
