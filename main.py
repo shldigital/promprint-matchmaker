@@ -6,7 +6,9 @@ import pandas as pd
 import typesense
 
 from dotenv import load_dotenv
+from functools import partial
 from lib.helpers import match_titles
+from multiprocessing import Pool
 from pathlib import Path
 
 
@@ -68,6 +70,11 @@ parser.add_argument('-w', '--word_threshold',
                     type=int,
                     default=2,
                     help="Threshold number of words/tokens for a collection title to be considered for matching")
+
+parser.add_argument('-p', '--processes',
+                    type=int,
+                    default=1,
+                    help="Number of threads to use in search, if > 1 will run searches in parallel")
 
 subparsers = parser.add_subparsers(help="Search algorithms to use",
                                    dest='command')
@@ -131,16 +138,19 @@ def main(args=None) -> None:
         collection = pd.read_csv(args.collection, sep='\t')
         collection = collection.set_index("id")
 
-    match_list = []
-    for row in register.iterrows():
-        new_matches = match_titles(row,
-                                   collection,
-                                   register,
-                                   args.score_threshold,
-                                   args.word_threshold,
-                                   args.command,
-                                   client)
-        match_list.append(new_matches)
+    match_titles_p = partial(match_titles,
+                             collection=collection,
+                             register=register,
+                             score_threshold=args.score_threshold,
+                             word_threshold=args.word_threshold,
+                             command=args.command,
+                             client=client)
+
+    if args.processes > 1:
+        with Pool(args.processes) as pool:
+            match_list = pool.map(match_titles_p, register.iterrows())
+    else:
+        match_list = map(match_titles_p, register.iterrows())
 
     matches: pd.DataFrame = pd.concat(match_list)
     matches.to_csv(args.outpath / "matches.csv")
