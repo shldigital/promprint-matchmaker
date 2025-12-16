@@ -38,13 +38,20 @@ def test_three_token_partial_match_score(text_1, text_2, score):
     assert match_score(text_1, text_2) == score
 
 
-def test_local_title_match():
+local_match_title_data = [
+    (1, 79, 1),  # Single match
+    (2, 90, 2),  # Two matches at lower threshold
+    (2, 95, 1)   # One match at higher threshold
+]
+
+
+@pytest.mark.parametrize("query_index, score_threshold, n_matches", local_match_title_data)
+def test_local_title_match(query_index, score_threshold, n_matches):
     register = pd.read_csv(register_file)
     register = register.set_index("id")
-    register_row = list(register.iterrows())[1]
+    register_row = list(register.iterrows())[query_index]
     collection = pd.read_csv(collection_file, sep='\t')
     collection = collection.set_index("id")
-    score_threshold = 79
     word_threshold = 1
     command = "local"
 
@@ -56,47 +63,4 @@ def test_local_title_match():
         word_threshold,
         command)
 
-    assert matches.shape[0] == 1
-
-
-def test_local_title_multi_match():
-    register = pd.read_csv(register_file)
-    register = register.set_index("id")
-    register_row = list(register.iterrows())[2]
-    collection = pd.read_csv(collection_file, sep='\t')
-    collection = collection.set_index("id")
-    score_threshold = 90
-    word_threshold = 1
-    command = "local"
-
-    matches: pd.DataFrame = match_titles(
-        register_row,
-        collection,
-        register,
-        score_threshold,
-        word_threshold,
-        command)
-
-    assert matches.shape[0] == 2
-
-
-def test_local_title_threshold_match():
-    register = pd.read_csv(register_file)
-    register = register.set_index("id")
-    register_row = list(register.iterrows())[2]
-    collection = pd.read_csv(collection_file, sep='\t')
-    collection = collection.set_index("id")
-    score_threshold = 95
-    word_threshold = 1
-    command = "local"
-
-    matches: pd.DataFrame = match_titles(
-        register_row,
-        collection,
-        register,
-        score_threshold,
-        word_threshold,
-        command)
-
-    assert matches.shape[0] == 1
-
+    assert matches.shape[0] == n_matches
