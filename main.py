@@ -154,12 +154,18 @@ def main(args=None) -> None:
         match_list = map(match_titles_p, register.iterrows())
 
     matches: pd.DataFrame = pd.concat(match_list)
-    matches.to_csv(args.outpath / "matches.csv")
+
+    today = datetime.date.today().strftime("%Y-%m-%d")
+    register_name = matches["register_register"].iloc[0]
+    library_name = matches["source_library"].iloc[0]
+    output_base = today + "-" + register_name + "-" + library_name
+
+    matches.to_csv(args.outpath / (output_base + "-matches.csv"))
     # NB this assumes that results have been sorted descending
     top_matches = matches[~matches.index.duplicated(keep='first')]
-    top_matches.to_csv(args.outpath / (datetime.date.today().strftime("%Y-%m-%d") + "-top-matches.csv"))
+    top_matches.to_csv(args.outpath / (output_base + "-top-matches.csv"))
     unmatched = register.drop(matches.index, axis='index')
-    unmatched.to_csv(args.outpath / "unmatched.csv")
+    unmatched.to_csv(args.outpath / (output_base + "-unmatched.csv"))
 
     n_register = register.shape[0]
     n_unmatched = unmatched.shape[0]
