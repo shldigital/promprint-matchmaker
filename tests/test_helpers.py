@@ -41,7 +41,8 @@ def test_three_token_partial_match_score(text_1, text_2, score):
 local_match_title_data = [
     (1, 79, 1),  # Single match
     (2, 90, 2),  # Two matches at lower threshold
-    (2, 95, 1)   # One match at higher threshold
+    (2, 95, 1),  # One match at higher threshold
+    (5, 79, 0),  # No match
 ]
 
 
