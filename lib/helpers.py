@@ -37,6 +37,26 @@ def match_titles(
         command: str,
         client: typesense.Client = None,
 ) -> pd.DataFrame:
+    """
+    Search for the title given in register_row in the given collection.
+
+    The register row must include a "clean_title" column to search with
+    Returns matches that are above score_threshold in similarity.
+
+    :param register_row: tuple of row index plus row data (the output of pd.DataFrame.iterrows())
+    :type register_row: tuple[str, pd.Series]
+    :param collection: DataFrame containing the collection entries to search through
+    :type pandas.DataFrame
+    :param register: DataFrame containing all the register entries
+    :type register: pandas.DataFrame
+    :param score_threshold: Only return matches with a similarity score above this value
+    :type score_threshold: int
+    :param word_threshold: Titles in the collection must be this length or longer to be considered for matching
+    :type word_threshold: int
+    :param command: "local" uses a collection loaded from file, "typesense" uses a collection indexed on a typesense instance
+    :type command: str
+    :param client: if command is "typesense" then this is a client collection to the typesense instance hosting the collection
+    """
     match_columns = [
         "id_register",
         "id_collection",
