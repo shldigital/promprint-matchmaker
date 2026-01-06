@@ -2,9 +2,7 @@
 import argparse
 import datetime
 import logging
-import os
 import pandas as pd
-import typesense
 
 from dotenv import load_dotenv
 from functools import partial
@@ -52,16 +50,12 @@ parser.add_argument('register',
 parser.add_argument('outpath',
                     type=lambda p: Path(p),
                     help='Output file location')
-
-
+parser.add_argument('collection',
+                    type=lambda p: Path(p),
+                    help='File of cleaned collection data in tsv format')
 parser.add_argument('-d', '--debug',
                     action='store_true',
                     help='Print debug messages')
-parser.add_argument('-c', '--collection',
-                    type=str,
-                    default='nls',
-                    choices=['nls'],
-                    help="Name of collection to search in")
 parser.add_argument('-t', '--score_threshold',
                     type=int,
                     default=79,
@@ -77,31 +71,6 @@ parser.add_argument('-p', '--processes',
                     default=1,
                     help="Number of threads to use in search, if > 1 will run searches in parallel")
 
-subparsers = parser.add_subparsers(help="Search algorithms to use",
-                                   dest='command')
-
-subparsers.required = True
-
-typesense_parser = subparsers.add_parser('typesense',
-                                         help='Use typesense to search')
-typesense_parser.add_argument('-k', '--key',
-                              type=str,
-                              help="API key for typesense server")
-typesense_parser.add_argument('-a', '--address',
-                              type=str,
-                              default='localhost',
-                              help="Host address for typesense server")
-typesense_parser.add_argument('-p', '--port',
-                              type=int,
-                              default=8108,
-                              help="Port for typesense server")
-
-local_parser = subparsers.add_parser('local',
-                                     help='Use full local collection')
-local_parser.add_argument('collection',
-                          type=lambda p: Path(p),
-                          help='File of cleaned collection data in tsv format')
-
 
 def main(args=None) -> None:
     """Entry point for matchmaking functions."""
@@ -113,39 +82,20 @@ def main(args=None) -> None:
         console.setLevel(logging.WARNING)
     logging.getLogger('').addHandler(console)
 
-    client: typesense.Client = None
-    if args.command == "typesense":
-        API_KEY = os.environ.get('TYPESENSE_KEY', args.key)
-        HOSTNAME = os.environ.get('TYPESENSE_HOST', args.address)
-        PORT = os.environ.get('TYPESENSE_PORT', args.port)
-        client = typesense.Client({
-            'api_key': API_KEY,
-            'nodes': [{
-                'host': HOSTNAME,
-                'port': PORT,
-                'protocol': 'http'
-            }],
-            'connection_timeout_seconds': 2
-        })
-
     register = pd.read_csv(args.register)
     if not all(name in register.columns for name in register_columns):
         raise KeyError("Input file does not have the expected columns: "
                        f"{register_columns}")
     register = register.set_index("id")
 
-    collection = pd.DataFrame()
-    if args.command == "local":
-        collection = pd.read_csv(args.collection, sep='\t')
-        collection = collection.set_index("id")
+    collection = pd.read_csv(args.collection, sep='\t')
+    collection = collection.set_index("id")
 
     match_titles_p = partial(match_titles,
                              collection=collection,
                              register=register,
                              score_threshold=args.score_threshold,
-                             word_threshold=args.word_threshold,
-                             command=args.command,
-                             client=client)
+                             word_threshold=args.word_threshold)
 
     if args.processes > 1:
         with Pool(args.processes) as pool:

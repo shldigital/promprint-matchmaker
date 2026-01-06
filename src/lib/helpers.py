@@ -1,8 +1,6 @@
 """Helper functions for text matching."""
 import pandas as pd
-import typesense
 
-from lib.typesense_search import make_query_subset
 from thefuzz import fuzz
 
 
@@ -34,8 +32,6 @@ def match_titles(
         register: pd.DataFrame,
         score_threshold: int,
         word_threshold: int,
-        command: str,
-        client: typesense.Client = None,
 ) -> pd.DataFrame:
     """
     Search for the title given in register_row in the given collection.
@@ -57,11 +53,6 @@ def match_titles(
     :param word_threshold: Titles in the collection must be this length or
          longer to be considered for matching
     :type word_threshold: int
-    :param command: "local" uses a collection loaded from file, "typesense"
-        uses a collection indexed on a typesense instance
-    :type command: str
-    :param client: if command is "typesense" then this is a client collection
-        to the typesense instance hosting the collection
     """
     match_columns = [
         "id_register",
@@ -73,8 +64,6 @@ def match_titles(
     matches = pd.DataFrame(columns=match_columns)
     if not isinstance(title, str):
         return matches
-    if command == "typesense":
-        collection = make_query_subset(title, collection, 2, client)
     min_len = collection["clean_title"].map(lambda t: len(t.split(" ")) >= word_threshold)
     collection = collection[min_len]
     if collection.shape[0] > 0:

@@ -54,14 +54,12 @@ def test_local_title_match(query_index, score_threshold, n_matches):
     collection = pd.read_csv(collection_file, sep='\t')
     collection = collection.set_index("id")
     word_threshold = 1
-    command = "local"
 
     matches: pd.DataFrame = match_titles(
         register_row,
         collection,
         register,
         score_threshold,
-        word_threshold,
-        command)
+        word_threshold)
 
     assert matches.shape[0] == n_matches
