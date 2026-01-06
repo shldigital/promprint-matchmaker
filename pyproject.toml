@@ -12,9 +12,15 @@ dependencies = [
     "typesense>=1.3.0",
 ]
 
+[project.scripts]
+mm = "matchmaker.main:main"
+
 [build-system]
 requires = ["hatchling", "uv-dynamic-versioning"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]
 source = "uv-dynamic-versioning"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/matchmaker"]

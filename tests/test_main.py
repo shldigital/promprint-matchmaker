@@ -1,6 +1,6 @@
 import pytest
 
-from main import main
+from matchmaker.main import main
 
 register_file = "./tests/test_files/test_register_export.csv"
 collection_file = "./tests/test_files/test_docs.tsv"
