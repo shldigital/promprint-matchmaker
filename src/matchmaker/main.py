@@ -41,31 +41,30 @@ register_columns = [
 
 
 parser = argparse.ArgumentParser(
-    description="Find register's hall entries in registers of library data"
+    description="Find register's hall entries in collections of library data"
 )
 
 parser.add_argument('register',
                     type=lambda p: Path(p),
                     help='File of cleaned register data in csv format')
-parser.add_argument('outpath',
-                    type=lambda p: Path(p),
-                    help='Output file location')
 parser.add_argument('collection',
                     type=lambda p: Path(p),
                     help='File of cleaned collection data in tsv format')
+parser.add_argument('outpath',
+                    type=lambda p: Path(p),
+                    help='Output file location')
+
 parser.add_argument('-d', '--debug',
                     action='store_true',
                     help='Print debug messages')
 parser.add_argument('-t', '--score_threshold',
                     type=int,
                     default=79,
-                    help="Threshold fuzzy matching score, keep scores above this")
-
+                    help="Threshold fuzzy matching score (0-100), only keep matches with scores above this value")
 parser.add_argument('-w', '--word_threshold',
                     type=int,
                     default=2,
                     help="Threshold number of words/tokens for a collection title to be considered for matching")
-
 parser.add_argument('-p', '--processes',
                     type=int,
                     default=1,
