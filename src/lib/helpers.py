@@ -64,18 +64,22 @@ def match_titles(
     matches = pd.DataFrame(columns=match_columns)
     if not isinstance(title, str):
         return matches
+    # Filter out collection titles that are too short to contain useful information
     min_len = collection["clean_title"].map(lambda t: len(t.split(" ")) >= word_threshold)
     collection = collection[min_len]
     if collection.shape[0] > 0:
         matches["id_collection"] = collection.index
+        # scores will have the same index as collection
         scores = collection["clean_title"].apply(lambda t: match_score(title, t))
         scores.name = "score"
         matches = matches.join(scores, on="id_collection")
         matches = matches[matches["score"] > score_threshold]
         matches["id_register"] = pd.Series([row_id] * matches.shape[0], index=matches.index)
+        # Add all the collection item metadata into the match frame
         matches = matches.join(
             collection, on="id_collection", lsuffix='_register', rsuffix='_collection')
         matches = matches.set_index("id_register")
+        # Add all the register item metadata into the match frame
         matches = register.join(
             matches, how="inner", lsuffix="_register", rsuffix='_collection')
         matches = matches.sort_values(by='score', ascending=False)
