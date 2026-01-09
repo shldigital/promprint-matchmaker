@@ -2,27 +2,31 @@
 import pandas as pd
 
 from thefuzz import fuzz
+from typing import Optional
 
 
-def match_score(text_1: str, text_2: str) -> int:
+def match_score(text_1: str, text_2: str, short_len: Optional[int] = None) -> int:
     """
     Return the similary score of two input texts.
 
-    Expects cleaned, space separated tokens for each text input
-    Shorter texts are only matched at the beginning of longer texts.
+    Expects cleaned, space separated tokens for each text input.
 
     :param text_1: First piece of text to match
     :type text_1: str
     :param text_2: Second piece of text to match
     :type text_2: str
+    :param short_len: If `short_len` is given then texts with fewer tokens than
+    this are only matched at the beginning of longer texts.
+    :type short_len: Optional[int]
     :return: Match score indicating how similar the texts are
     :rtype: int
     """
-    toks = [text_1.split(" "), text_2.split(" ")]
-    toks.sort(key=len)
-    if len(toks[0]) < 4:
-        text_1 = " ".join(toks[0])
-        text_2 = " ".join(toks[1][:4])
+    if short_len:
+        toks = [text_1.split(" "), text_2.split(" ")]
+        toks.sort(key=len)
+        if len(toks[0]) < short_len:
+            text_1 = " ".join(toks[0])
+            text_2 = " ".join(toks[1][:short_len])
     return fuzz.partial_ratio(text_1, text_2)
 
 
@@ -70,7 +74,7 @@ def match_titles(
     if collection.shape[0] > 0:
         matches["id_collection"] = collection.index
         # scores will have the same index as collection
-        scores = collection["clean_title"].apply(lambda t: match_score(title, t))
+        scores = collection["clean_title"].apply(lambda t: match_score(title, t, short_len=4))
         scores.name = "score"
         matches = matches.join(scores, on="id_collection")
         matches = matches[matches["score"] > score_threshold]
