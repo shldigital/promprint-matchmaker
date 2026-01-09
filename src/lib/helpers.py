@@ -1,4 +1,5 @@
 """Helper functions for text matching."""
+
 import pandas as pd
 
 from thefuzz import fuzz
@@ -31,11 +32,11 @@ def match_score(text_1: str, text_2: str, short_len: Optional[int] = None) -> in
 
 
 def match_titles(
-        register_row: tuple[str, pd.Series],
-        collection: pd.DataFrame,
-        register: pd.DataFrame,
-        score_threshold: int,
-        word_threshold: int,
+    register_row: tuple[str, pd.Series],
+    collection: pd.DataFrame,
+    register: pd.DataFrame,
+    score_threshold: int,
+    word_threshold: int,
 ) -> pd.DataFrame:
     """
     Search for the title given in register_row in the given collection.
@@ -69,22 +70,30 @@ def match_titles(
     if not isinstance(title, str):
         return matches
     # Filter out collection titles that are too short to contain useful information
-    min_len = collection["clean_title"].map(lambda t: len(t.split(" ")) >= word_threshold)
+    min_len = collection["clean_title"].map(
+        lambda t: len(t.split(" ")) >= word_threshold
+    )
     collection = collection[min_len]
     if collection.shape[0] > 0:
         matches["id_collection"] = collection.index
         # scores will have the same index as collection
-        scores = collection["clean_title"].apply(lambda t: match_score(title, t, short_len=4))
+        scores = collection["clean_title"].apply(
+            lambda t: match_score(title, t, short_len=4)
+        )
         scores.name = "score"
         matches = matches.join(scores, on="id_collection")
         matches = matches[matches["score"] > score_threshold]
-        matches["id_register"] = pd.Series([row_id] * matches.shape[0], index=matches.index)
+        matches["id_register"] = pd.Series(
+            [row_id] * matches.shape[0], index=matches.index
+        )
         # Add all the collection item metadata into the match frame
         matches = matches.join(
-            collection, on="id_collection", lsuffix='_register', rsuffix='_collection')
+            collection, on="id_collection", lsuffix="_register", rsuffix="_collection"
+        )
         matches = matches.set_index("id_register")
         # Add all the register item metadata into the match frame
         matches = register.join(
-            matches, how="inner", lsuffix="_register", rsuffix='_collection')
-        matches = matches.sort_values(by='score', ascending=False)
+            matches, how="inner", lsuffix="_register", rsuffix="_collection"
+        )
+        matches = matches.sort_values(by="score", ascending=False)
     return matches

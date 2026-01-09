@@ -68,7 +68,10 @@ def test_local_title_match(query_index, score_threshold, n_matches):
 publisher_match_frames = [
     (
         "macmillan dictionary of anthropology",
-        {"title": ["dictionary of anthropology"], "publisher": ["ye olde macmillan book publisher"]},
+        {
+            "title": ["dictionary of anthropology"],
+            "publisher": ["ye olde macmillan book publisher"],
+        },
         100,
     )
 ]
@@ -79,7 +82,5 @@ publisher_match_frames = [
 )
 def test_match_publisher(register_title, collection_dict, expected_score):
     collection = pd.DataFrame(collection_dict)
-    score = collection["publisher"].apply(
-        lambda t: match_score(register_title, t)
-    )
+    score = collection["publisher"].apply(lambda t: match_score(register_title, t))
     assert score[0] == expected_score
