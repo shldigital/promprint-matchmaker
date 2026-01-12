@@ -65,7 +65,7 @@ def test_local_title_match(query_index, score_threshold, n_matches):
     assert matches.shape[0] == n_matches
 
 
-publisher_match_frames = [
+first_word_match_frames = [
     (
         "macmillan dictionary of anthropology",
         {
@@ -78,11 +78,34 @@ publisher_match_frames = [
 
 
 @pytest.mark.parametrize(
-    "register_title, collection_dict, expected_score", publisher_match_frames
+    "register_entry, collection_dict, expected_score", first_word_match_frames
 )
-def test_match_publisher(register_title, collection_dict, expected_score):
+def test_match_first_word(register_entry, collection_dict, expected_score):
     collection = pd.DataFrame(collection_dict)
     score = collection["publisher"].apply(
-        lambda t: match_score(register_title.split(" ")[0], t)
+        lambda t: match_score(register_entry.split(" ")[0], t)
+    )
+    assert score[0] == expected_score
+
+
+metadata_match_frames = [
+    (
+        "Longman & Co.",
+        {
+            "title": ["alpine journal"],
+            "publisher": [" "],
+        },
+        0
+    )
+]
+
+
+@pytest.mark.parametrize(
+    "register_entry, collection_dict, expected_score", metadata_match_frames
+)
+def test_match_metadata(register_entry, collection_dict, expected_score):
+    collection = pd.DataFrame(collection_dict)
+    score = collection["publisher"].apply(
+        lambda t: match_score(register_entry.split(" ")[0], t)
     )
     assert score[0] == expected_score

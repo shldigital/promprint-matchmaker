@@ -66,6 +66,7 @@ def match_titles(
     index, row = register_row
     title = row["clean_title"]
     row_id = index
+    publisher = row["publisher"]
     matches = pd.DataFrame(columns=match_columns)
     if not isinstance(title, str):
         return matches
@@ -77,27 +78,34 @@ def match_titles(
     if collection.shape[0] > 0:
         matches["id_collection"] = collection.index
         scores = pd.DataFrame()
+
         # scores will have the same index as collection
         scores["title_score"] = collection["clean_title"].apply(
             lambda t: match_score(title, t, short_len=4)
         )
-        # Publisher and creator matches only looks at the first word of the
-        # register title, looking for e.g. Macmillan's Dictionary of Antropology
-        # to match Macmillan as a publisher
+
+        # publisher match doesn't use `short_len` because entries are all expected
+        # to be short
         scores["publisher_score"] = collection["publisher"].apply(
-            lambda p: match_score(title.split(" ")[0], p))
+            lambda p: match_score(publisher, p))
+
+        # Creator matches only looks at the first word of the
+        # register title
         scores["creator_score"] = collection["creator"].apply(
             lambda c: match_score(title.split(" ")[0], c))
+
         matches = matches.join(scores, on="id_collection")
         matches = matches[matches["title_score"] > score_threshold]
         matches["id_register"] = pd.Series(
             [row_id] * matches.shape[0], index=matches.index
         )
+
         # Add all the collection item metadata into the match frame
         matches = matches.join(
             collection, on="id_collection", lsuffix="_register", rsuffix="_collection"
         )
         matches = matches.set_index("id_register")
+
         # Add all the register item metadata into the match frame
         matches = register.join(
             matches, how="inner", lsuffix="_register", rsuffix="_collection"
