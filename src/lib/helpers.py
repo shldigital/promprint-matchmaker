@@ -76,13 +76,20 @@ def match_titles(
     collection = collection[min_len]
     if collection.shape[0] > 0:
         matches["id_collection"] = collection.index
+        scores = pd.DataFrame()
         # scores will have the same index as collection
-        scores = collection["clean_title"].apply(
+        scores["title_score"] = collection["clean_title"].apply(
             lambda t: match_score(title, t, short_len=4)
         )
-        scores.name = "score"
+        # Publisher and creator matches only looks at the first word of the
+        # register title, looking for e.g. Macmillan's Dictionary of Antropology
+        # to match Macmillan as a publisher
+        scores["publisher_score"] = collection["publisher"].apply(
+            lambda p: match_score(title.split(" ")[0], p))
+        scores["creator_score"] = collection["creator"].apply(
+            lambda c: match_score(title.split(" ")[0], c))
         matches = matches.join(scores, on="id_collection")
-        matches = matches[matches["score"] > score_threshold]
+        matches = matches[matches["title_score"] > score_threshold]
         matches["id_register"] = pd.Series(
             [row_id] * matches.shape[0], index=matches.index
         )
@@ -95,5 +102,5 @@ def match_titles(
         matches = register.join(
             matches, how="inner", lsuffix="_register", rsuffix="_collection"
         )
-        matches = matches.sort_values(by="score", ascending=False)
+        matches = matches.sort_values(by="title_score", ascending=False)
     return matches
