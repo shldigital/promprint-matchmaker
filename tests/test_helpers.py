@@ -39,7 +39,7 @@ def test_three_token_partial_match_score(text_1, text_2, score):
     assert match_score(text_1, text_2, short_len=4) == score
 
 
-local_match_title_data = [
+match_title_data = [
     (1, 79, 1),  # Single match
     (2, 90, 2),  # Two matches at lower threshold
     (2, 95, 1),  # One match at higher threshold
@@ -48,9 +48,9 @@ local_match_title_data = [
 
 
 @pytest.mark.parametrize(
-    "query_index, score_threshold, n_matches", local_match_title_data
+    "query_index, score_threshold, n_matches", match_title_data
 )
-def test_local_title_match(query_index, score_threshold, n_matches):
+def test_title_match(query_index, score_threshold, n_matches):
     register = pd.read_csv(register_file)
     register = register.set_index("id")
     register_row = list(register.iterrows())[query_index]
