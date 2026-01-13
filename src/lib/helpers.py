@@ -70,7 +70,7 @@ def match_titles(
     matches = pd.DataFrame(columns=match_columns)
     if not isinstance(title, str):
         return matches
-    # Filter out collection titles that are too short to contain useful information
+    # Filter out collection titles that are too short and will create spurious matches
     min_len = collection["clean_title"].map(
         lambda t: len(t.split(" ")) >= word_threshold
     )
@@ -87,12 +87,14 @@ def match_titles(
         # publisher match doesn't use `short_len` because entries are all expected
         # to be short
         scores["publisher_score"] = collection["publisher"].apply(
-            lambda p: match_score(publisher, p))
+            lambda p: match_score(publisher, p)
+        )
 
         # Creator matches only looks at the first word of the
         # register title
         scores["creator_score"] = collection["creator"].apply(
-            lambda c: match_score(title.split(" ")[0], c))
+            lambda c: match_score(title.split(" ")[0], c)
+        )
 
         matches = matches.join(scores, on="id_collection")
         matches = matches[matches["title_score"] > score_threshold]
