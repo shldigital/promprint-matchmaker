@@ -1,11 +1,12 @@
 [project]
 name = "promprint-matchmaker"
 dynamic = ["version"]
-description = " earch algorithms for matching book title strings across different registers for the Promprint project"
+description = "Search algorithms for matching book title strings across different registers for the Promprint project"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 dependencies = [
     "dotenv>=0.9.9",
+    "nltk>=3.9.2",
     "pandas>=2.3.3",
     "pytest>=9.0.1",
     "thefuzz>=0.22.1",
