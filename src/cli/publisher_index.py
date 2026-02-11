@@ -29,7 +29,6 @@ def main(collection_path: Path, output_folder: Path):
     publisher_frequency_df = (
         publishers_df["clean_publisher"].value_counts().reset_index()
     )
-    publisher_frequency_df.to_csv(output_folder / "publisher_frequency.csv")
 
     top_publishers_df = publisher_frequency_df.head(10)
     matches = pd.DataFrame()
@@ -44,5 +43,7 @@ def main(collection_path: Path, output_folder: Path):
 
     publishers_df["indexed_publisher"] = publishers_df["clean_publisher"]
     publishers_df["id_pub_score"] = np.nan
+
+    publisher_frequency_df.to_csv(output_folder / "publisher_frequency.csv")
     publishers_df.to_csv(output_folder / "publishers.csv")
     matches.to_csv(output_folder / "publisher_index.csv")
