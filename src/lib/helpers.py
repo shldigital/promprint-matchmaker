@@ -1,9 +1,19 @@
 """Helper functions for text matching."""
 
+import nltk
 import pandas as pd
 
+from nltk.corpus import stopwords
 from thefuzz import fuzz
 from typing import Optional
+
+nltk.download("stopwords")
+stopwords = set(stopwords.words("english"))
+
+
+def filter_stop_words(text: str) -> Optional[str]:
+    """Replace stopwords with None."""
+    return text if text not in stopwords else None
 
 
 def match_score(text_1: str, text_2: str, short_len: Optional[int] = None) -> int:
@@ -91,9 +101,11 @@ def match_titles(
         )
 
         # Creator matches only looks at the first word of the
-        # register title
-        scores["creator_score"] = collection["creator"].apply(
-            lambda c: match_score(title.split(" ")[0], c)
+        # register title, as long as it's not a stopword
+        title_first_word = filter_stop_words(title.split(" ")[0])
+        scores["creator_score"] = (
+            collection["creator"]
+            .apply(lambda c: match_score(title_first_word, c))
         )
 
         matches = matches.join(scores, on="id_collection")

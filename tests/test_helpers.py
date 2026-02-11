@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from lib.helpers import match_score, match_titles
+from lib.helpers import filter_stop_words, match_score, match_titles
 
 register_file = "./tests/test_files/test_register_export.csv"
 collection_file = "./tests/test_files/test_docs.tsv"
@@ -39,6 +39,14 @@ def test_three_token_partial_match_score(text_1, text_2, score):
     assert match_score(text_1, text_2, short_len=4) == score
 
 
+def test_empty_string_match_score():
+    assert match_score("", "a string") == 0
+
+
+def test_none_match_score():
+    assert match_score(None, "a string") == 0
+
+
 match_title_data = [
     (1, 79, 1),  # Single match
     (2, 90, 2),  # Two matches at lower threshold
@@ -47,9 +55,7 @@ match_title_data = [
 ]
 
 
-@pytest.mark.parametrize(
-    "query_index, score_threshold, n_matches", match_title_data
-)
+@pytest.mark.parametrize("query_index, score_threshold, n_matches", match_title_data)
 def test_title_match(query_index, score_threshold, n_matches):
     register = pd.read_csv(register_file)
     register = register.set_index("id")
@@ -88,6 +94,29 @@ def test_match_first_word(register_entry, collection_dict, expected_score):
     assert score[0] == expected_score
 
 
+stop_word_match_frames = [
+    (
+        "the dictionary of anthropology",
+        {
+            "title": ["dictionary of anthropology"],
+            "publisher": ["the olde macmillan book publishing place"],
+        },
+        0,
+    )
+]
+
+
+@pytest.mark.parametrize(
+    "register_entry, collection_dict, expected_score", stop_word_match_frames
+)
+def test_stop_word_no_match(register_entry, collection_dict, expected_score):
+    collection = pd.DataFrame(collection_dict)
+    score = collection["publisher"].apply(
+        lambda t: match_score(filter_stop_words(register_entry.split(" ")[0]), t)
+    )
+    assert score[0] == expected_score
+
+
 metadata_match_frames = [
     (
         "Longman & Co.",
@@ -95,7 +124,7 @@ metadata_match_frames = [
             "title": ["alpine journal"],
             "publisher": [" "],
         },
-        0
+        0,
     )
 ]
 
