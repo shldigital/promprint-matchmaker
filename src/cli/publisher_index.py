@@ -5,10 +5,12 @@ import pandas as pd
 from lib.helpers import match_score
 from pathlib import Path
 
-expected_columns = ["id", "publisher", "clean_publisher"]
+expected_columns = ["clean_publisher"]
 
 
-def main(collection_path: Path, output_folder: Path):
+def main(
+    collection_path: Path, output_folder: Path, N: int = 20, score_threshold: int = 90
+):
     """
     Create a grouped index of publishers from a cleaned collection.
 
@@ -24,14 +26,13 @@ def main(collection_path: Path, output_folder: Path):
     if not all(name in df.columns for name in expected_columns):
         raise KeyError(f"Input file does not have relevant columns: {expected_columns}")
     publishers_df = df.filter(expected_columns, axis=1).astype("str")
-    publishers_df.set_index("id")
 
     publisher_frequency_df = (
         publishers_df["clean_publisher"].value_counts().reset_index()
     )
     pf_working = publisher_frequency_df.copy().drop(columns=["count"])
 
-    top_publishers_df = publisher_frequency_df.head(10)
+    top_publishers_df = publisher_frequency_df.head(N)
     matches = pd.DataFrame()
     for publisher_row in top_publishers_df.iterrows():
         index, row = publisher_row
@@ -42,7 +43,7 @@ def main(collection_path: Path, output_folder: Path):
             lambda p: match_score(publisher, p)
         )
         scores["common_name"] = publisher
-        scores = scores[scores["match_score"] > 90]
+        scores = scores[scores["match_score"] > score_threshold]
         matches = pd.concat([scores, matches])
 
     publishers_df["indexed_publisher"] = publishers_df["clean_publisher"]
