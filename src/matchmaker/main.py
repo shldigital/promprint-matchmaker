@@ -81,6 +81,8 @@ def main(args=None) -> None:
         console.setLevel(logging.WARNING)
     logging.getLogger('').addHandler(console)
 
+    args.outpath.mkdir(parents=False, exist_ok=True)
+
     register = pd.read_csv(args.register)
     if not all(name in register.columns for name in register_columns):
         raise KeyError("Input file does not have the expected columns: "
