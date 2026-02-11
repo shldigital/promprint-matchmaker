@@ -29,17 +29,21 @@ def main(collection_path: Path, output_folder: Path):
     publisher_frequency_df = (
         publishers_df["clean_publisher"].value_counts().reset_index()
     )
+    pf_working = publisher_frequency_df.copy().drop(columns=["count"])
 
     top_publishers_df = publisher_frequency_df.head(10)
     matches = pd.DataFrame()
-    for publisher in top_publishers_df["clean_publisher"]:
-        scores = publisher_frequency_df.copy()
-        scores["match_score"] = publisher_frequency_df["clean_publisher"].apply(
+    for publisher_row in top_publishers_df.iterrows():
+        index, row = publisher_row
+        publisher = row["clean_publisher"]
+        pf_working.drop(index, inplace=True)
+        scores = pf_working.copy()
+        scores["match_score"] = pf_working["clean_publisher"].apply(
             lambda p: match_score(publisher, p)
         )
         scores["common_name"] = publisher
         scores = scores[scores["match_score"] > 90]
-        matches = pd.concat([matches, scores])
+        matches = pd.concat([scores, matches])
 
     publishers_df["indexed_publisher"] = publishers_df["clean_publisher"]
     publishers_df["id_pub_score"] = np.nan
