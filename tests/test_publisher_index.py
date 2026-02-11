@@ -31,17 +31,21 @@ def test_outputs_new_columns(tmp_path):
 
 def test_outputs_publisher_frequencies(tmp_path):
     main(test_register, temporary_test_path)
-    publisher_frequency_df = pd.read_csv(
-        temporary_test_path / "publisher_frequency.csv"
-    )
+    publisher_frequency_df = pd.read_csv(temporary_test_path / "publisher_frequency.csv")
     assert (
         publisher_frequency_df["clean_publisher"][0] == "simpkin and co"
         and publisher_frequency_df["count"][0] == 395
     )
 
 
-def test_outputs_top_publisher_scores(tmp_path):
+def test_outputs_publisher_index(tmp_path):
     main(test_register, temporary_test_path)
-    top_publisher_scores_df = pd.read_csv(temporary_test_path / "publisher_index.csv")
-    required_columns = ["clean_publisher", "match_score", "common_name"]
-    assert all(name in top_publisher_scores_df.columns for name in required_columns)
+    publisher_index_df = pd.read_csv(temporary_test_path / "publisher_index.csv", index_col=0)
+    expected_data = {
+        "clean_publisher": ["simpkin", "simpkin and marshall"],
+        "match_score": [100, 92],
+        "common_name": ["simpkin and co", "simpkin and co"],
+    }
+    expected_df = pd.DataFrame(data=expected_data, index=[561, 42])
+    for index, row in expected_df.iterrows():
+        assert publisher_index_df.loc[index].equals(row)
