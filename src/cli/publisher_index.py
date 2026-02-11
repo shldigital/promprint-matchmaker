@@ -14,13 +14,17 @@ def main(
     """
     Create a grouped index of publishers from a cleaned collection.
 
-    The index groups entities that have misspellings or known name changes such
+    The index groups entities that have misspellings or spelling drifts such
     that common publishing entities may be referred to via single index.
 
     :param collection_path: Path to csv file containing register or catalog data
     :type collection_path: pathlib.Path
     :param output_folder: Path to folder where results will be save as csv
     :type collection_path: pathlib.Path
+    :param N: Check only the top N most frequent publisher names for grouping
+    :type N: int
+    :param score_threshold: Only publisher strings with similarity score greather
+      than this threshold are grouped
     """
     df = pd.read_csv(collection_path)
     if not all(name in df.columns for name in expected_columns):
