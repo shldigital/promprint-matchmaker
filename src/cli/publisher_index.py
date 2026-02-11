@@ -50,5 +50,4 @@ def main(
     publishers_df["id_pub_score"] = np.nan
 
     publisher_frequency_df.to_csv(output_folder / "publisher_frequency.csv")
-    publishers_df.to_csv(output_folder / "publishers.csv")
     matches.to_csv(output_folder / "publisher_index.csv")

@@ -3,11 +3,10 @@ import pandas as pd
 import pytest
 
 from pathlib import Path
-from src.cli.publisher_index import main, expected_columns
+from src.cli.publisher_index import main
 
 test_register = Path("./tests/test_files/test_register_cleaned.csv")
 no_publisher_column = Path("./tests/test_files/test_register_no_publisher.csv")
-new_columns = ["id_pub_score", "indexed_publisher"]
 temporary_test_path = Path("./tests/test_files/")
 
 
@@ -20,13 +19,6 @@ def test_outputs_csv_file(tmp_path):
 def test_raises_key_error_on_bad_columns(tmp_path):
     with pytest.raises(KeyError):
         main(no_publisher_column, tmp_path)
-
-
-def test_outputs_new_columns(tmp_path):
-    main(test_register, tmp_path)
-    publishers_df = pd.read_csv(tmp_path / "publishers.csv")
-    output_columns = expected_columns + new_columns
-    assert all(col in publishers_df.columns for col in output_columns)
 
 
 def test_outputs_publisher_frequencies(tmp_path):
