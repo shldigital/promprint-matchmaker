@@ -7,7 +7,7 @@ collection_file = "./tests/test_files/test_docs.tsv"
 bad_register_file = "./tests/test_files/bad_file.txt"
 
 
-def test_good_register(tmp_path):
+def test_good_register_does_not_raise(tmp_path):
     test_args = [register_file, collection_file, str(tmp_path)]
     main(test_args)
 
