@@ -9,7 +9,7 @@ expected_columns = ["clean_publisher"]
 
 
 def main(
-    collection_path: Path, output_folder: Path, N: int = 20, score_threshold: int = 90
+    collection_paths: list[Path], output_folder: Path, N: int = 20, score_threshold: int = 90
 ):
     """
     Create a grouped index of publishers from a cleaned collection.
@@ -17,7 +17,8 @@ def main(
     The index groups entities that have misspellings or spelling drifts such
     that common publishing entities may be referred to via single index.
 
-    :param collection_path: Path to csv file containing register or catalog data
+    :param collection_paths: List of Paths to csv file containing register
+      or catalog data, publishers from each of these files will be collected
     :type collection_path: pathlib.Path
     :param output_folder: Path to folder where results will be save as csv
     :type collection_path: pathlib.Path
@@ -26,11 +27,15 @@ def main(
     :param score_threshold: Only publisher strings with similarity score greather
       than this threshold are grouped
     """
-    df = pd.read_csv(collection_path)
-    if not all(name in df.columns for name in expected_columns):
-        raise KeyError(f"Input file does not have relevant columns: {expected_columns}")
-    publishers_df = df.filter(expected_columns, axis=1).astype("str")
-
+    publishers_df = pd.DataFrame()
+    for path in collection_paths:
+        df = pd.read_csv(path, sep=("\t" if "tsv" in str(path) else ","))
+        if not all(name in df.columns for name in expected_columns):
+            raise KeyError(
+                f"Input file '{path}' does not have relevant columns: {expected_columns}"
+            )
+        publishers_df = pd.concat([publishers_df,
+                                   df.filter(expected_columns, axis=1).astype("str")])
     publisher_frequency_df = (
         publishers_df["clean_publisher"].value_counts().reset_index()
     )

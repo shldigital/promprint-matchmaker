@@ -6,23 +6,24 @@ from pathlib import Path
 from src.cli.publisher_index import main
 
 test_register = Path("./tests/test_files/test_register_cleaned.csv")
+test_collection = Path("./tests/test_files/test_collection_cleaned.tsv")
 no_publisher_column = Path("./tests/test_files/test_register_no_publisher.csv")
-temporary_test_path = Path("./tests/test_files/")
+temporary_test_path = Path("./tests/")
 
 
 def test_outputs_csv_file(tmp_path):
-    main(test_register, tmp_path)
+    main([test_register, test_collection], tmp_path)
     outputs = glob.glob(str(tmp_path) + "/*.csv")
     assert len(outputs) > 0
 
 
 def test_raises_key_error_on_bad_columns(tmp_path):
     with pytest.raises(KeyError):
-        main(no_publisher_column, tmp_path)
+        main([no_publisher_column], tmp_path)
 
 
 def test_outputs_publisher_frequencies(tmp_path):
-    main(test_register, temporary_test_path)
+    main([test_register], temporary_test_path)
     publisher_frequency_df = pd.read_csv(
         temporary_test_path / "publisher_frequency.csv"
     )
@@ -33,7 +34,7 @@ def test_outputs_publisher_frequencies(tmp_path):
 
 
 def test_outputs_publisher_index(tmp_path):
-    main(test_register, temporary_test_path)
+    main([test_register], temporary_test_path)
     publisher_index_df = pd.read_csv(
         temporary_test_path / "publisher_index.csv", index_col=0
     )
