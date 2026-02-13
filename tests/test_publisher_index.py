@@ -23,7 +23,7 @@ def test_raises_key_error_on_bad_columns(tmp_path):
 
 
 def test_outputs_publisher_frequencies(tmp_path):
-    main([test_register], temporary_test_path)
+    main([test_register, test_collection], temporary_test_path)
     publisher_frequency_df = pd.read_csv(
         temporary_test_path / "publisher_frequency.csv"
     )
@@ -34,7 +34,7 @@ def test_outputs_publisher_frequencies(tmp_path):
 
 
 def test_outputs_publisher_index(tmp_path):
-    main([test_register], temporary_test_path)
+    main([test_register, test_collection], temporary_test_path)
     publisher_index_df = pd.read_csv(
         temporary_test_path / "publisher_index.csv", index_col=0
     )
@@ -43,6 +43,6 @@ def test_outputs_publisher_index(tmp_path):
         "match_score": [100, 92],
         "common_name": ["simpkin and co", "simpkin and co"],
     }
-    expected_df = pd.DataFrame(data=expected_data, index=[561, 42])
+    expected_df = pd.DataFrame(data=expected_data, index=[1296, 44])
     for index, row in expected_df.iterrows():
         assert publisher_index_df.loc[index].equals(row)
