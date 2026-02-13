@@ -4,19 +4,11 @@ import datetime
 import logging
 import pandas as pd
 
-from dotenv import load_dotenv
 from functools import partial
 from lib.helpers import match_titles
 from multiprocessing import Pool
 from pathlib import Path
 
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Load env variables from .env file if defined
-env_path = BASE_DIR / ".env"
-load_dotenv(env_path, override=True)
 
 logger = logging.getLogger('')
 logging.basicConfig(level=logging.INFO,
