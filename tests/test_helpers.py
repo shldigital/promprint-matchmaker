@@ -3,8 +3,8 @@ import pytest
 
 from lib.helpers import filter_stop_words, match_score, match_titles
 
-register_file = "./tests/test_files/test_register_export.csv"
-collection_file = "./tests/test_files/test_docs.tsv"
+register_file = "./tests/test_files/test_register_cleaned.csv"
+collection_file = "./tests/test_files/test_collection_cleaned.tsv"
 
 four_token_partial_match_data = [
     ("quick brown fox jumps", "quick brown fox jumps over", 100),
@@ -48,10 +48,10 @@ def test_none_match_score():
 
 
 match_title_data = [
-    (1, 79, 1),  # Single match
-    (2, 90, 2),  # Two matches at lower threshold
-    (2, 95, 1),  # One match at higher threshold
-    (5, 79, 0),  # No match
+    (1, 79, 18),
+    (2, 90, 0),
+    (2, 95, 0),
+    (5, 79, 1),
 ]
 
 

@@ -2,8 +2,8 @@ import pytest
 
 from matchmaker.main import main
 
-register_file = "./tests/test_files/test_register_export.csv"
-collection_file = "./tests/test_files/test_docs.tsv"
+register_file = "./tests/test_files/test_register_short.csv"
+collection_file = "./tests/test_files/test_collection_short.tsv"
 bad_register_file = "./tests/test_files/bad_file.txt"
 
 
