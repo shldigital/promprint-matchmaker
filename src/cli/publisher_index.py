@@ -9,7 +9,10 @@ expected_columns = ["clean_publisher"]
 
 
 def main(
-    collection_paths: list[Path], output_folder: Path, N: int = 20, score_threshold: int = 90
+    collection_paths: list[Path],
+    output_folder: Path,
+    N: int = 20,
+    score_threshold: int = 90,
 ):
     """
     Create a grouped index of publishers from a cleaned collection.
@@ -34,8 +37,9 @@ def main(
             raise KeyError(
                 f"Input file '{path}' does not have relevant columns: {expected_columns}"
             )
-        publishers_df = pd.concat([publishers_df,
-                                   df.filter(expected_columns, axis=1).astype("str")])
+        publishers_df = pd.concat(
+            [publishers_df, df.filter(expected_columns, axis=1).astype("str")]
+        )
     publisher_frequency_df = (
         publishers_df["clean_publisher"].value_counts().reset_index()
     )
