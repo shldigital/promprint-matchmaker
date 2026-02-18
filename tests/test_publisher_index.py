@@ -12,20 +12,20 @@ temporary_test_path = Path("./tests/")
 
 
 def test_outputs_csv_file(tmp_path):
-    main([test_register, test_collection], tmp_path)
+    main(False, tmp_path, [test_register, test_collection], 20, 90)
     outputs = glob.glob(str(tmp_path) + "/*.csv")
     assert len(outputs) > 0
 
 
 def test_raises_key_error_on_bad_columns(tmp_path):
     with pytest.raises(KeyError):
-        main([no_publisher_column], tmp_path)
+        main(False, tmp_path, [no_publisher_column], 20, 90)
 
 
 def test_outputs_publisher_frequencies(tmp_path):
-    main([test_register, test_collection], temporary_test_path)
+    main(False, tmp_path, [test_register, test_collection], 20, 90)
     publisher_frequency_df = pd.read_csv(
-        temporary_test_path / "publisher_frequency.csv"
+        tmp_path / "publisher_frequency.csv"
     )
     assert (
         publisher_frequency_df["clean_publisher"][0] == "simpkin and co"
@@ -34,9 +34,9 @@ def test_outputs_publisher_frequencies(tmp_path):
 
 
 def test_outputs_publisher_index(tmp_path):
-    main([test_register, test_collection], temporary_test_path)
+    main(False, tmp_path, [test_register, test_collection], 20, 90)
     publisher_index_df = pd.read_csv(
-        temporary_test_path / "publisher_index.csv", index_col=0
+        tmp_path / "publisher_index.csv", index_col=0
     )
     expected_data = {
         "clean_publisher": ["simpkin", "simpkin and marshall"],

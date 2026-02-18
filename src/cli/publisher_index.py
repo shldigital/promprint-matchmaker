@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from lib.helpers import match_score
 from pathlib import Path
+from typing import Any
 
 expected_columns = ["clean_publisher"]
 publisher_blacklist = [
@@ -110,10 +111,12 @@ publisher_blacklist = [
 
 
 def main(
-    collection_paths: list[Path],
-    output_folder: Path,
-    N: int = 20,
-    score_threshold: int = 90,
+    debug: bool,
+    outpath: Path,
+    collections: list[Path],
+    n_top: int,
+    score_threshold: int,
+    **kwargs: Any,
 ):
     """
     Create a grouped index of publishers from a cleaned collection.
@@ -121,18 +124,18 @@ def main(
     The index groups entities that have misspellings or spelling drifts such
     that common publishing entities may be referred to via single index.
 
-    :param collection_paths: List of Paths to csv file containing register
+    :param collections: List of Paths to csv file containing register
       or catalog data, publishers from each of these files will be collected
     :type collection_path: pathlib.Path
-    :param output_folder: Path to folder where results will be save as csv
+    :param outpath: Path to folder where results will be save as csv
     :type collection_path: pathlib.Path
-    :param N: Check only the top N most frequent publisher names for grouping
-    :type N: int
+    :param n_top: Check only the top N most frequent publisher names for grouping
+    :type n_top: int
     :param score_threshold: Only publisher strings with similarity score greather
       than this threshold are grouped
     """
     publishers_df = pd.DataFrame()
-    for path in collection_paths:
+    for path in collections:
         df = pd.read_csv(path, sep=("\t" if "tsv" in str(path) else ","))
         if not all(name in df.columns for name in expected_columns):
             raise KeyError(
@@ -144,12 +147,12 @@ def main(
     publisher_frequency_df = (
         publishers_df["clean_publisher"]
         .value_counts()
-        .drop(publisher_blacklist, errors='ignore')
+        .drop(publisher_blacklist, errors="ignore")
         .reset_index()
     )
     pf_working = publisher_frequency_df.copy().drop(columns=["count"])
 
-    top_publishers_df = publisher_frequency_df.head(N)
+    top_publishers_df = publisher_frequency_df.head(n_top)
     matches = pd.DataFrame()
     for publisher_row in top_publishers_df.iterrows():
         index, row = publisher_row
@@ -166,5 +169,5 @@ def main(
     publishers_df["indexed_publisher"] = publishers_df["clean_publisher"]
     publishers_df["id_pub_score"] = np.nan
 
-    publisher_frequency_df.to_csv(output_folder / "publisher_frequency.csv")
-    matches.to_csv(output_folder / "publisher_index.csv")
+    publisher_frequency_df.to_csv(outpath / "publisher_frequency.csv")
+    matches.to_csv(outpath / "publisher_index.csv")

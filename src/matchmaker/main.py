@@ -3,7 +3,7 @@
 import argparse
 import logging
 
-from cli import titles_match
+from cli import publisher_index, titles_match
 from pathlib import Path
 
 
@@ -76,6 +76,37 @@ def main(args=None) -> None:
     )
 
     titles_parser.set_defaults(func=titles_match.main)
+
+    publishers_parser = subparsers.add_parser(
+        "publishers",
+        help="Create a publishers index by grouping similar publisher names",
+    )
+    publishers_parser.add_argument(
+        "outpath", type=lambda p: Path(p), help="Output file location"
+    )
+
+    publishers_parser.add_argument(
+        "collections",
+        nargs='+',
+        type=lambda p: Path(p),
+        help="Path to collections with publishers to be collated",
+    )
+    publishers_parser.add_argument(
+        "-n",
+        "--n_top",
+        type=int,
+        default=20,
+        help="Group similar matches for only the n_top most frequent publisher names",
+    )
+    publishers_parser.add_argument(
+        "-t",
+        "--score_threshold",
+        type=int,
+        default=90,
+        help="Threshold fuzzy matching score (0-100), only keep matches with scores above this value",
+    )
+
+    publishers_parser.set_defaults(func=publisher_index.main)
 
     args = parser.parse_args(args)
 
