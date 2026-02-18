@@ -6,7 +6,7 @@ import logging
 import pandas as pd
 
 from functools import partial
-from lib.helpers import match_titles
+from lib.helpers import match_titles, apply_publishers_index
 from multiprocessing import Pool
 from pathlib import Path
 
@@ -53,6 +53,11 @@ parser.add_argument("outpath", type=lambda p: Path(p), help="Output file locatio
 
 parser.add_argument("-d", "--debug", action="store_true", help="Print debug messages")
 parser.add_argument(
+    "--publishers_index",
+    type=lambda p: Path(p),
+    help="File of publisher index used to replace publisher strings with more common names",
+)
+parser.add_argument(
     "-t",
     "--score_threshold",
     type=int,
@@ -96,6 +101,15 @@ def main(args=None) -> None:
 
     collection = pd.read_csv(args.collection, sep="\t")
     collection = collection.set_index("id")
+
+    if args.publishers_index:
+        publishers_index = pd.read_csv(args.publishers_index)
+        register["indexed_publisher"] = register["clean_publisher"].map(
+            lambda p: apply_publishers_index(p, publishers_index)
+        )
+        collection["indexed_publisher"] = collection["clean_publisher"].map(
+            lambda p: apply_publishers_index(p, publishers_index)
+        )
 
     match_titles_p = partial(
         match_titles,

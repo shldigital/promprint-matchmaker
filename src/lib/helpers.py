@@ -103,9 +103,8 @@ def match_titles(
         # Creator matches only looks at the first word of the
         # register title, as long as it's not a stopword
         title_first_word = filter_stop_words(title.split(" ")[0])
-        scores["creator_score"] = (
-            collection["creator"]
-            .apply(lambda c: match_score(title_first_word, c))
+        scores["creator_score"] = collection["creator"].apply(
+            lambda c: match_score(title_first_word, c)
         )
 
         matches = matches.join(scores, on="id_collection")
@@ -126,3 +125,31 @@ def match_titles(
         )
         matches = matches.sort_values(by="title_score", ascending=False)
     return matches
+
+
+def apply_publishers_index(
+    publisher_string: str, publishers_index: pd.DataFrame
+) -> str:
+    """
+    Replace a cleaned_publisher name with an indexed_publisher name.
+
+    If the cleaned_publisher name exists in the publishers index then it will
+    be replaced by the indexed_publisher entry that corresponds to that name.
+    If it doesn't exist then the name is not changed
+
+    :param publisher_string: This string is checked for in the index,
+    and is replaced if found
+    :type publisher_string: str
+    :param publishers_index: Index of strings with the indexed_publisher string
+    that they can be replaced by
+    :type publishers_index: pd.DataFrame
+    :return: The new string if found, or the same one if not
+    :rtype: str
+    """
+    publishers_index.set_index("clean_publisher")
+    try:
+        match_row = publishers_index.loc[publisher_string]
+        indexed_value = match_row["indexed_publisher"]
+    except KeyError:
+        indexed_value = publisher_string
+    return indexed_value

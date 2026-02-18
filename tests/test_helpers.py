@@ -1,10 +1,16 @@
 import pandas as pd
 import pytest
 
-from lib.helpers import filter_stop_words, match_score, match_titles
+from lib.helpers import (
+    filter_stop_words,
+    match_score,
+    match_titles,
+    apply_publishers_index,
+)
 
 register_file = "./tests/test_files/test_register_cleaned.csv"
 collection_file = "./tests/test_files/test_collection_cleaned.tsv"
+index_file = "./tests/test_files/test_publisher_index.csv"
 
 four_token_partial_match_data = [
     ("quick brown fox jumps", "quick brown fox jumps over", 100),
@@ -138,3 +144,24 @@ def test_match_metadata(register_entry, collection_dict, expected_score):
         lambda t: match_score(register_entry.split(" ")[0], t)
     )
     assert score[0] == expected_score
+
+
+publisher_match_frames = [
+    (
+        {"clean_publisher": ["routledge", "some non-indexed publisher"]},
+        {"indexed_publisher": ["routledge and co", "some non-indexed publisher"]},
+    )
+]
+
+
+@pytest.mark.parametrize("data_dict, indexed_dict", publisher_match_frames)
+def test_apply_publishers_index(data_dict, indexed_dict, tmp_path):
+    publishers_index = pd.read_csv(index_file)
+    data_df = pd.DataFrame(data_dict)
+    data_df["indexed_publisher"] = data_df["clean_publisher"].map(
+        lambda p: apply_publishers_index(p, publishers_index)
+    )
+    expected_dict = data_dict.update(indexed_dict)
+    expected_df = pd.DataFrame(data=expected_dict)
+    for index, row in expected_df.iterrows():
+        assert data_df.iloc[0].equals(row)
