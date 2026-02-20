@@ -1,3 +1,4 @@
+"""Find register's hall entries in registers of library data."""
 import datetime
 import pandas as pd
 
@@ -30,6 +31,34 @@ def main(
     publishers_index: Path = None,
     **kwargs: Any,
 ) -> None:
+    """
+    Create one file each for lists of matched entries (brief), matched entries (full)
+    and unmatched entries.
+
+    The brief matched entries will only provide the top match, the full matched entries
+    provides every match that is above the `score_threshold`, and unmatched entries
+    provides every entry that had no matches scoring above the `score_threshold`.
+
+    :param debug: Log debug info
+    :type debug: bool
+    :param register: Cleaned stationers register data in csv format
+    :type register: Path
+    :param collection: Cleaned library collecton data, in tsv format
+    :type collection: Path
+    :param outpath: Path to place the output files in
+    :type outpath: Path
+    :param score_threshold: matches are only counted if the match score is
+      above this threshold
+    :type score_threshold: int
+    :param word_threshold: Titles in the collection must be this length or
+      longer to be considered for matching
+    :type word_threshold: int
+    :param publishers_index: path to a publisher's index. Providing this will cause
+      publisher names in the register and collection files to be replaced by their index
+    :type publishers_index: Path
+    :param processes: Number of threads to use in search, if > 1 will run searches in parallel
+    :type processes: int
+    """
     outpath.mkdir(parents=False, exist_ok=True)
     register = pd.read_csv(register)
     if not all(name in register.columns for name in register_columns):

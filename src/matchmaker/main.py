@@ -1,4 +1,7 @@
-"""Find register's hall entries in registers of library data."""
+"""
+CLI to Find register's hall entries in registers of library data or
+create a publishers index.
+"""
 
 import argparse
 import logging
