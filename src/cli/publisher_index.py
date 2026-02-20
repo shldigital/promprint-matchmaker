@@ -134,6 +134,7 @@ def main(
     :param score_threshold: Only publisher strings with similarity score greather
       than this threshold are grouped
     """
+    outpath.mkdir(parents=False, exist_ok=True)
     publishers_df = pd.DataFrame()
     for path in collections:
         df = pd.read_csv(path, sep=("\t" if "tsv" in str(path) else ","))
