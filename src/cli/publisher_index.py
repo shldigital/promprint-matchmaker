@@ -124,15 +124,16 @@ def main(
     The index groups entities that have misspellings or spelling drifts such
     that common publishing entities may be referred to via single index.
 
-    :param collections: List of Paths to csv file containing register
-      or catalog data, publishers from each of these files will be collected
-    :type collection_path: pathlib.Path
     :param outpath: Path to folder where results will be save as csv
     :type collection_path: pathlib.Path
+    :param collections: List of Paths to csv file containing register
+      or catalog data, publishers from each of these files will be collected
+    :type collections: pathlib.Path
     :param n_top: Check only the top N most frequent publisher names for grouping
     :type n_top: int
     :param score_threshold: Only publisher strings with similarity score greather
       than this threshold are grouped
+    :type score_threshold: int
     """
     outpath.mkdir(parents=False, exist_ok=True)
     publishers_df = pd.DataFrame()
