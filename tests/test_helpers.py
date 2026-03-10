@@ -53,6 +53,10 @@ def test_none_match_score():
     assert match_score(None, "a string") == 0
 
 
+def test_empty_strings_match():
+    assert match_score("", "") == 100
+
+
 match_title_data = [
     (1, 79, 18),
     (2, 90, 0),
