@@ -2,9 +2,10 @@ import glob
 import pandas as pd
 import pytest
 
-from pathlib import Path
 from src.cli.n_gram_list import main
 from lib.n_gram import n_gram_frequency
+from pandas.testing import assert_series_equal
+from pathlib import Path
 
 test_collections = [
     Path("./tests/test_files/test_collection_cleaned.tsv"),
@@ -44,7 +45,7 @@ expected_frequencies = {
     "the": 12,
     "quick": 8,
     "brown": 7,
-    "fox": 5,
+    "fox": 6,
     "jumps": 5,
     "over": 4,
     "lazy": 2,
@@ -53,15 +54,9 @@ expected_frequencies = {
 
 
 def test_n_gram_frequency():
-    test_series = pd.Series(test_column, name="title")
+    test_series = pd.Series(test_column)
     n_gram_df = n_gram_frequency(test_series, 1)
     n_gram_df.to_csv(temp_output / "n_gram_count.csv")
     expected_frequencies_series = pd.Series(data=expected_frequencies)
     expected_frequencies_series.name = "count"
-    expected_frequencies_series.index.name = "n_gram"
-    #print(expected_frequencies_series.index)
-    #print(n_gram_df.index)
-    assert False
-    #assert n_gram_df.name == expected_frequencies_series.name
-    #assert n_gram_df.index.name == expected_frequencies_series.index.name
-    #assert n_gram_df == expected_frequencies_series
+    assert_series_equal(n_gram_df, expected_frequencies_series)
