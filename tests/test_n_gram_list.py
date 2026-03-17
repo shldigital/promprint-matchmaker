@@ -41,22 +41,41 @@ test_column = [
     "the quick brown fox jumps over the lazy dog",
 ]
 
-expected_frequencies = {
-    "the": 12,
-    "quick": 8,
-    "brown": 7,
-    "fox": 6,
-    "jumps": 5,
-    "over": 4,
-    "lazy": 2,
-    "dog": 1,
-}
+expected_frequencies = [
+    (
+        1,
+        {
+            "the": 12,
+            "quick": 8,
+            "brown": 7,
+            "fox": 6,
+            "jumps": 5,
+            "over": 4,
+            "lazy": 2,
+            "dog": 1,
+        },
+    ),
+    (
+        2,
+        {
+            "the quick": 8,
+            "quick brown": 7,
+            "brown fox": 6,
+            "fox jumps": 5,
+            "jumps over": 4,
+            "over the": 3,
+            "the lazy": 2,
+            "lazy dog": 1,
+        },
+    ),
+]
 
 
-def test_n_gram_frequency():
+@pytest.mark.parametrize("degree, expected_data", expected_frequencies)
+def test_n_gram_frequency(degree, expected_data):
     test_series = pd.Series(test_column)
-    n_gram_df = n_gram_frequency(test_series, 1)
+    n_gram_df = n_gram_frequency(test_series, degree)
     n_gram_df.to_csv(temp_output / "n_gram_count.csv")
-    expected_frequencies_series = pd.Series(data=expected_frequencies)
-    expected_frequencies_series.name = "count"
-    assert_series_equal(n_gram_df, expected_frequencies_series)
+    expected_data_series = pd.Series(data=expected_data)
+    expected_data_series.name = "count"
+    assert_series_equal(n_gram_df, expected_data_series)
