@@ -59,5 +59,5 @@ def main(
     ax.bar(
         n_gram_top.index, n_gram_top, width=1, edgecolor="white", linewidth=0.7
     )
-    plt.show()
+    plt.savefig(outpath / "top_n_grams.png")
     n_gram_series.to_csv(outpath / "n_gram_list.csv")
