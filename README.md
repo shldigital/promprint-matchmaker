@@ -71,3 +71,29 @@ uv run mm publishers ../promprint-data/ ../promprint-data/register_export.csv ..
 ```
 
 This takes the `register_export.csv` register data and the `nls_catalog_export.tsv` catalog data, and collects all cleaned publisher names from these files. It calculates the N_TOP most frequent publisher names and matches each one of those in turn against all other entries. Close matches will be recorded in the index. The script outputs match info to the `/promprint-data` folder.
+
+`n_grams` subcommand:
+
+```
+usage: mm n_grams [-h] [-c COLUMNS [COLUMNS ...]] [-n N_TOP] [-t SCORE_THRESHOLD] outpath catalog catalog
+
+positional arguments:
+  outpath               Output file location
+  catalog               Path to catalogs from which to build n_gram list
+
+options:
+  -h, --help            show this help message and exit
+  -c COLUMNS [COLUMNS ...], --columns COLUMNS [COLUMNS ...]
+                        Columns to create n-grams for, will create a separate list per column, default "clean_titles"
+  -n N_TOP, --n_top N_TOP
+                        Top n-grams to include in the index
+  -t SCORE_THRESHOLD, --score_threshold SCORE_THRESHOLD
+                        Threshold fuzzy matching score (0-100), only keep matches with scores above this value
+```
+
+Usage example:
+```
+uv run mm n_grams ../promprint-data/ ../promprint-data/register_export.csv ../promprint-data/nls_catalog_export.tsv
+```
+
+This takes the `register_export.csv` register data and the `nls_catalog_export.tsv` catalog data, and collects all n\_grams from the specified columns found in these files. It takes the N_TOP most frequent n\_grams and outputs this list to the `/promprint-data` folder, alongside the full list of _all_ n\_grams found as well as a plot of the frequency of n\_grams.

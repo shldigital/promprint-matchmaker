@@ -6,7 +6,7 @@ create a publishers index.
 import argparse
 import logging
 
-from cli import publisher_index, titles_match
+from cli import publisher_index, titles_match, n_gram_list
 from pathlib import Path
 
 
@@ -110,6 +110,45 @@ def main(args=None) -> None:
     )
 
     publishers_parser.set_defaults(func=publisher_index.main)
+
+    n_gram_parser = subparsers.add_parser(
+        "n_grams",
+        help="Create a n_gram index",
+    )
+    n_gram_parser.add_argument(
+        "outpath", type=lambda p: Path(p), help="Output file location"
+    )
+
+    n_gram_parser.add_argument(
+        "catalog",
+        nargs=2,
+        type=lambda p: Path(p),
+        help="Path to catalogs from which to build n_gram list",
+    )
+    n_gram_parser.add_argument(
+        "-c",
+        "--columns",
+        nargs='+',
+        type=str,
+        default=["clean_title"],
+        help="Columns to create n-grams for, will create a separate list per column",
+    )
+    n_gram_parser.add_argument(
+        "-n",
+        "--n_top",
+        type=int,
+        default=100,
+        help="Top n-grams to include in the index",
+    )
+    n_gram_parser.add_argument(
+        "-t",
+        "--score_threshold",
+        type=int,
+        default=100,
+        help="Threshold fuzzy matching score (0-100), only keep matches with scores above this value",
+    )
+
+    n_gram_parser.set_defaults(func=n_gram_list.main)
 
     args = parser.parse_args(args)
 

@@ -30,7 +30,7 @@ def collect_columns(data_paths: list[Path], columns: list[str]) -> pd.DataFrame:
 
 def main(
     outpath: Path,
-    catalogs: list[Path],
+    catalog: list[Path],
     columns: list[str],
     n_top: int,
     score_threshold: int,
@@ -42,9 +42,9 @@ def main(
 
     :param outpath: Path to the compiled list of top n-grams, saved as csv
     :type outpath: pathlib.Path
-    :param catalogs: List of Paths to files containing catalog data,
+    :param catalog: List of Paths to files containing catalog data,
       n-grams from each of these files will be collected
-    :type catalogs: pathlib.Path
+    :type catalog: pathlib.Path
     :param n_top: Check only the n_top most frequent n-grams
     :type n_top: int
     :param score_threshold: n-grams with similarity higher than this threshold are
@@ -52,12 +52,16 @@ def main(
     :type score_threshold: int
     """
     outpath.mkdir(parents=False, exist_ok=True)
-    collected_df = collect_columns(catalogs, columns)
+    collected_df = collect_columns(catalog, columns)
     n_gram_series = multi_n_gram_frequency(collected_df["clean_title"])
-    n_gram_top = n_gram_series.iloc[:n_top].set_axis(range(n_top), axis=0)
+    n_gram_series.to_csv(outpath / "n_gram_list.csv")
+
+    n_gram_top = n_gram_series.iloc[:n_top]
+    n_gram_top.to_csv(outpath / "n_gram_top.csv")
+    n_gram_top_plot = n_gram_top.set_axis(range(n_top), axis=0)
+
     fig, ax = plt.subplots()
     ax.bar(
-        n_gram_top.index, n_gram_top, width=1, edgecolor="white", linewidth=0.7
+        n_gram_top_plot.index, n_gram_top_plot, width=1, edgecolor="white", linewidth=0.7
     )
     plt.savefig(outpath / "top_n_grams.png")
-    n_gram_series.to_csv(outpath / "n_gram_list.csv")

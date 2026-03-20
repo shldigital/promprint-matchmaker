@@ -21,7 +21,7 @@ temp_output = Path("./tests/output_examples")
     "test_paths", single_and_multi_file, ids=["single", "multiple"]
 )
 def test_single_and_multi_file(test_paths, tmp_path):
-    main(temp_output, test_paths, ["clean_title"], 20, 100)
+    main(temp_output, test_paths, ["clean_title"], 100, 100)
     csv_outputs = glob.glob(str(temp_output) + "/*.csv")
     png_outputs = glob.glob(str(temp_output) + "/*.png")
     assert len(csv_outputs) > 0
