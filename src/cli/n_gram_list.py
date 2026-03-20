@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import pandas as pd
 from lib.n_gram import multi_n_gram_frequency
 from pathlib import Path
@@ -53,4 +54,10 @@ def main(
     outpath.mkdir(parents=False, exist_ok=True)
     collected_df = collect_columns(catalogs, columns)
     n_gram_series = multi_n_gram_frequency(collected_df["clean_title"])
+    n_gram_top = n_gram_series.iloc[:n_top].set_axis(range(n_top), axis=0)
+    fig, ax = plt.subplots()
+    ax.bar(
+        n_gram_top.index, n_gram_top, width=1, edgecolor="white", linewidth=0.7
+    )
+    plt.show()
     n_gram_series.to_csv(outpath / "n_gram_list.csv")
