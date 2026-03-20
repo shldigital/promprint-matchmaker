@@ -8,19 +8,21 @@ from pandas.testing import assert_series_equal
 from pathlib import Path
 
 test_collections = [
-    Path("./tests/test_files/test_collection_cleaned.tsv"),
-    Path("./tests/test_files/test_register_cleaned.csv"),
+    Path("./tests/test_files/test_collection_short.tsv"),
+    Path("./tests/test_files/test_register_short.csv"),
 ]
-temp_output = Path("./tests/output_examples")
 single_and_multi_file = [[test_collections[0]], test_collections]
+test_n_gram_frequencies = Path("./tests/test_files/n_gram_count.csv")
+
+temp_output = Path("./tests/output_examples")
 
 
 @pytest.mark.parametrize(
     "test_paths", single_and_multi_file, ids=["single", "multiple"]
 )
 def test_single_and_multi_file(test_paths, tmp_path):
-    main(tmp_path, test_paths, ["clean_title"], 20, 100)
-    outputs = glob.glob(str(tmp_path) + "/*.csv")
+    main(temp_output, test_paths, ["clean_title"], 20, 100)
+    outputs = glob.glob(str(temp_output) + "/*.csv")
     assert len(outputs) > 0
 
 
@@ -131,7 +133,7 @@ expected_data = {
 
 def test_multi_n_gram_frequency():
     test_series = pd.Series(test_data)
-    n_gram_df = multi_n_gram_frequency(test_series)
-    n_gram_df.to_csv(temp_output / "n_gram_count.csv")
+    n_gram_series = multi_n_gram_frequency(test_series)
+    n_gram_series.to_csv(temp_output / "n_gram_count.csv")
     expected_data_series = pd.Series(data=expected_data)
-    assert_series_equal(n_gram_df, expected_data_series)
+    assert_series_equal(n_gram_series, expected_data_series)

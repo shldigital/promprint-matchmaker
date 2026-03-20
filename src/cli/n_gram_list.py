@@ -1,6 +1,5 @@
-import numpy as np
 import pandas as pd
-from lib.helpers import match_score
+from lib.n_gram import multi_n_gram_frequency
 from pathlib import Path
 from typing import Any
 
@@ -38,7 +37,7 @@ def main(
     **kwargs: Any,
 ):
     """
-    Create a list of top n-grams that appear in the selected column of each catalog.
+    Create a list and plot of top n-grams that appear in the selected column of each catalog.
 
     :param outpath: Path to the compiled list of top n-grams, saved as csv
     :type outpath: pathlib.Path
@@ -51,7 +50,7 @@ def main(
       grouped together
     :type score_threshold: int
     """
-    # TODO: This section is reusable, e.g. in publishers index: should be a function
     outpath.mkdir(parents=False, exist_ok=True)
     collected_df = collect_columns(catalogs, columns)
-    collected_df.to_csv(outpath / "n_gram_list.csv")
+    n_gram_series = multi_n_gram_frequency(collected_df["clean_title"])
+    n_gram_series.to_csv(outpath / "n_gram_list.csv")
