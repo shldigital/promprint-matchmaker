@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-from lib.n_gram import multi_n_gram_frequency
+from lib.n_gram import multi_n_gram_frequency, sort_n_grams_by_degree
 from pathlib import Path
 from typing import Any
 
@@ -58,6 +58,10 @@ def main(
 
     n_gram_top = n_gram_series.iloc[:n_top]
     n_gram_top.to_csv(outpath / "n_gram_top.csv")
+
+    n_gram_top_ordered = sort_n_grams_by_degree(n_gram_top)
+    n_gram_top_ordered.to_csv(outpath / "n_gram_top_ordered.csv")
+
     n_gram_top_plot = n_gram_top.set_axis(range(n_top), axis=0)
 
     fig, ax = plt.subplots()

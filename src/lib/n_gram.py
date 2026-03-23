@@ -1,5 +1,6 @@
 import pandas as pd
 from nltk import ngrams
+# TODO: tokenize once, pass tokenized lists to the functions
 
 
 def n_gram_frequency(text_series: pd.Series, degree: int = 1) -> pd.Series:
@@ -54,9 +55,25 @@ def multi_n_gram_frequency(
     if max_degree is None:
         max_degree = text_series.map(lambda t: len(t.split())).max()
 
-    # TODO: tokenize once, pass tokenized lists to the n_gram_frequency function
     for degree in range(min_degree, max_degree + 1):
         new_n_gram_frequencies = n_gram_frequency(text_series, degree)
         n_gram_frequencies = pd.concat([n_gram_frequencies, new_n_gram_frequencies])
 
     return n_gram_frequencies.sort_values(ascending=False)
+
+
+def sort_n_grams_by_degree(text_series: pd.Series):
+    """
+    Sort a list of n-gram frequencies by the number of tokens in the index, descending.
+
+    The list will secondarily by sorted by frequency, descending.
+
+    :param text_series: Series of cleaned text strings, with tokens separated by space
+    :type text_series: pd.Series
+    :return: Sorted data series
+    :rtype: pd.Series
+    """
+    df = text_series.to_frame()
+    df["degree"] = df.index.map(lambda i: len(i.split()))
+    sorted = df.sort_values(by=["degree", 0], ascending=False)
+    return sorted[0].squeeze()
