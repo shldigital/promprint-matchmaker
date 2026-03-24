@@ -1,12 +1,8 @@
 import pandas as pd
 import pytest
 
-from lib.helpers import (
-    filter_stop_words,
-    match_score,
-    match_titles,
-    apply_publishers_index,
-)
+from lib.helpers import filter_stop_words, apply_publishers_index
+from lib.matching import match_score, match_titles
 
 register_file = "./tests/test_files/test_register_cleaned.csv"
 collection_file = "./tests/test_files/test_collection_cleaned.tsv"

@@ -3,7 +3,8 @@ import datetime
 import pandas as pd
 
 from functools import partial
-from lib.helpers import match_titles, apply_publishers_index
+from lib.helpers import apply_publishers_index
+from lib.matching import match_titles
 from multiprocessing import Pool
 from pathlib import Path
 from typing import Any

@@ -2,7 +2,7 @@
 
 import numpy as np
 import pandas as pd
-from lib.helpers import match_score
+from lib.matching import match_score
 from pathlib import Path
 from typing import Any
 
