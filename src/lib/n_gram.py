@@ -5,7 +5,7 @@ from nltk import ngrams
 
 def n_gram_frequency(text_series: pd.Series, degree: int = 1) -> pd.Series:
     """
-    Produce a list of frequencies of all n_grams of given degree
+    Produce a list of frequencies of all n_grams of given degree.
 
     Each string in the input series will be split into tokens using space as a separator.
     We then collect each n_gram for the resulting list of tokens that corresponds to the
@@ -37,7 +37,7 @@ def multi_n_gram_frequency(
     text_series: pd.Series, min_degree: int = 1, max_degree: int = None
 ) -> pd.Series:
     """
-    Produce a list of frequencies of all n_grams for a range of degrees
+    Produce a list of frequencies of all n_grams for a range of degrees.
 
     All integral degrees between min_degree and max_degree will be collated in the output series
 
@@ -50,7 +50,6 @@ def multi_n_gram_frequency(
     :return: Series of frequencies of n_grams, with the actual n_gram as index label
     :rtype: pd.Series
     """
-
     n_gram_frequencies = pd.Series()
     if max_degree is None:
         max_degree = text_series.map(lambda t: len(t.split())).max()
