@@ -10,6 +10,7 @@ publisher_index_file = "./tests/test_files/test_publisher_index.csv"
 test_catalog_1 = "./tests/test_files/test_register_short.csv"
 test_catalog_2 = "./tests/test_files/test_collection_short.tsv"
 
+
 def test_titles_good_register_does_not_raise(tmp_path):
     test_args = ["titles", register_file, collection_file, str(tmp_path)]
     main(test_args)
