@@ -74,7 +74,5 @@ def sort_n_grams_by_degree(n_gram_frame: pd.DataFrame):
     :return: Sorted data Frame
     :rtype: pd.DataFrame
     """
-    df = n_gram_frame
-    df["degree"] = df.index.map(lambda i: len(i.split()))
-    sorted = df.sort_values(by=["degree", "count"], ascending=False)
-    return sorted
+    n_gram_frame["degree"] = n_gram_frame.index.map(lambda i: len(i.split()))
+    return n_gram_frame.sort_values(by=["degree", "count"], ascending=False)
