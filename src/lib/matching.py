@@ -66,7 +66,6 @@ def match_titles(
     ]
     index, row = register_row
     title = row["clean_title"]
-    row_id = index
     publisher = row["publisher"]
     matches = pd.DataFrame(columns=match_columns)
     if not isinstance(title, str):
@@ -101,7 +100,7 @@ def match_titles(
         matches = matches.join(scores, on="id_collection")
         matches = matches[matches["title_score"] > score_threshold]
         matches["id_register"] = pd.Series(
-            [row_id] * matches.shape[0], index=matches.index
+            [index] * matches.shape[0], index=matches.index
         )
 
         # Add all the collection item metadata into the match frame
