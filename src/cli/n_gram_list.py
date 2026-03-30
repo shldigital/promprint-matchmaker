@@ -54,7 +54,7 @@ def main(
     collected_df = collect_columns(catalog, columns)
     token_list = collected_df["clean_title"].str.split()
     n_gram_frame = multi_n_gram_frequency(token_list)
-    n_gram_frame.loc[n_gram_frame["count"] > 1].to_csv(outpath / "n_gram_list.csv")
+    n_gram_frame.loc[n_gram_frame["count"] > 2].to_csv(outpath / "n_gram_list.csv")
 
     n_gram_top = n_gram_frame.iloc[:n_top]
     n_gram_top.to_csv(outpath / "n_gram_top.csv")
