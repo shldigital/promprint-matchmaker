@@ -2,7 +2,8 @@ import pandas as pd
 import pytest
 
 from lib.helpers import filter_stop_words, apply_publishers_index
-from lib.matching import match_score, match_titles
+from lib.matching import match_score, match_titles, n_gram_substring_match
+from pandas.testing import assert_frame_equal
 
 register_file = "./tests/test_files/test_register_cleaned.csv"
 collection_file = "./tests/test_files/test_collection_cleaned.tsv"
@@ -165,3 +166,49 @@ def test_apply_publishers_index(data_dict, indexed_dict, tmp_path):
     expected_df = pd.DataFrame(data=expected_dict)
     for index, row in expected_df.iterrows():
         assert data_df.iloc[0].equals(row)
+
+
+n_gram_data_cols = {"count": [1, 2, 1, 3, 2, 1], "degree": [3, 2, 2, 1, 1, 1]}
+n_gram_data_index = [
+    "quick brown fox",
+    "quick brown",
+    "brown fox",
+    "quick",
+    "brown",
+    "fox",
+]
+
+match_rows = [
+    (
+        {
+            "clean_title_register": ["the quick brown dog"],
+            "clean_title_collection": ["the quick brown frog"],
+        },
+        {"n-gram match": [True], "substring score": 82, "match": [True]},
+    ),
+    (
+        {
+            "clean_title_register": ["the quick brown dog"],
+            "clean_title_collection": ["the quick brown aeroplane"],
+        },
+        {"n-gram match": [True], "substring score": 74, "match": [False]},
+    ),
+    (
+        {
+            "clean_title_register": ["the terrifying black dog"],
+            "clean_title_collection": ["the terrifying black frog"],
+        },
+        {"n-gram match": [False], "substring score": None, "match": [True]},
+    ),
+]
+
+
+@pytest.mark.parametrize("match_row_cols, expected_row_cols", match_rows)
+def test_n_gram_substring_match(match_row_cols, expected_row_cols):
+    n_gram_data = pd.DataFrame(data=n_gram_data_cols, index=n_gram_data_index)
+    match_row = pd.DataFrame(match_row_cols)
+    match_row = n_gram_substring_match(match_row, n_gram_data, 80)
+    expected_row = match_row_cols.copy()
+    expected_row.update(expected_row_cols)
+    expected_data = pd.DataFrame(expected_row)
+    assert_frame_equal(match_row, expected_data)

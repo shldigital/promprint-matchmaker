@@ -115,3 +115,33 @@ def match_titles(
         )
         matches = matches.sort_values(by="title_score", ascending=False)
     return matches
+
+
+def n_gram_substring_match(
+    match_row: pd.DataFrame,
+    n_gram_data: pd.DataFrame,
+    score_threshold: int,
+):
+    is_match = True
+    n_gram_match = False
+    score = None
+
+    match_strings = (
+        str(match_row["clean_title_register"]),
+        str(match_row["clean_title_collection"]),
+    )
+
+    n_gram_data = n_gram_data.sort_values(by=["degree", "count"], ascending=False)
+    for n_gram in n_gram_data.index:
+        if all(n_gram in text for text in match_strings):
+            n_gram_match = True
+            substrings = list(
+                text.replace(n_gram, "").strip() for text in match_strings
+            )
+            score = match_score(substrings[0], substrings[1])
+            is_match = score > score_threshold
+            break  # Match status is now definitive
+    match_row["n-gram match"] = n_gram_match
+    match_row["substring score"] = score
+    match_row["match"] = is_match
+    return match_row
