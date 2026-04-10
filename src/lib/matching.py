@@ -121,7 +121,32 @@ def n_gram_substring_match(
     match_row: pd.DataFrame,
     n_gram_data: pd.DataFrame,
     score_threshold: int,
+    n_gram_count_cutoff: Optional[int] = None,
 ):
+    """
+    Evaluates string similarity between register and collection titles by identifying
+    common n-grams and scoring the remaining substrings.
+
+    The function filters the n-gram dataset, identifies the highest-priority shared
+    n-gram between two strings, and calculates a match score based on the text
+    left over after the n-gram is removed.
+
+    :param match_row: A Single dataframe row including corresponding, matched entries
+        from two catalogs e.g. 'clean_title_register' and 'clean_title_collection'
+    :type match_row: pd.DataFrame
+    :param n_gram_data: A DataFrame where the index contains n-gram strings and
+        columns include 'degree' and 'count' for sorting and filtering.
+    :type n_gram_data: pd.DataFrame
+    :param score_threshold: The minimum integer score required for the remaining
+        substrings to be considered a valid match.
+    :type score_threshold: int
+    :param n_gram_count_cutoff: The minimum frequency count required for an n-gram
+        to be included in the search. If None, no filtering is applied.
+    :type n_gram_count_cutoff: Optional[int]
+    :returns: The modified input DataFrame row with additional columns: 'n-gram match',
+        'substring score', and 'match'.
+    :rtype: pd.DataFrame
+    """
     is_match = True
     n_gram_match = False
     score = None
@@ -131,6 +156,8 @@ def n_gram_substring_match(
         str(match_row["clean_title_collection"]),
     )
 
+    if n_gram_count_cutoff is not None:
+        n_gram_data = n_gram_data.loc[n_gram_data["count"] > n_gram_count_cutoff]
     n_gram_data = n_gram_data.sort_values(by=["degree", "count"], ascending=False)
     for n_gram in n_gram_data.index:
         if all(n_gram in text for text in match_strings):

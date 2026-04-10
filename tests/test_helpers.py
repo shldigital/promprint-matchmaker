@@ -212,3 +212,54 @@ def test_n_gram_substring_match(match_row_cols, expected_row_cols):
     expected_row.update(expected_row_cols)
     expected_data = pd.DataFrame(expected_row)
     assert_frame_equal(match_row, expected_data)
+
+
+match_rows_for_count_cutoff = [
+    (
+        {
+            "clean_title_register": ["the quick brown dog"],
+            "clean_title_collection": ["the quick brown frog"],
+        },
+        {"n-gram match": [True], "substring score": 82, "match": [True]},
+        None,
+    ),
+    (
+        {
+            "clean_title_register": ["the quick brown dog"],
+            "clean_title_collection": ["the quick brown frog"],
+        },
+        {"n-gram match": [True], "substring score": 82, "match": [True]},
+        1,
+    ),
+    (
+        {
+            "clean_title_register": ["the quick brown dog"],
+            "clean_title_collection": ["the quick brown frog"],
+        },
+        {"n-gram match": [True], "substring score": 84, "match": [True]},
+        2,
+    ),
+    (
+        {
+            "clean_title_register": ["the quick brown dog"],
+            "clean_title_collection": ["the quick brown frog"],
+        },
+        {"n-gram match": [False], "substring score": None, "match": [True]},
+        3,
+    ),
+]
+
+
+@pytest.mark.parametrize(
+    "match_row_cols, expected_row_cols, cutoff", match_rows_for_count_cutoff
+)
+def test_n_gram_substring_match_with_count_cutoff(
+    match_row_cols, expected_row_cols, cutoff
+):
+    n_gram_data = pd.DataFrame(data=n_gram_data_cols, index=n_gram_data_index)
+    match_row = pd.DataFrame(match_row_cols)
+    match_row = n_gram_substring_match(match_row, n_gram_data, 80, cutoff)
+    expected_row = match_row_cols.copy()
+    expected_row.update(expected_row_cols)
+    expected_data = pd.DataFrame(expected_row)
+    assert_frame_equal(match_row, expected_data)
