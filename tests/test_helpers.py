@@ -182,16 +182,16 @@ match_rows = [
     (
         {
             "clean_title_register": ["the quick brown dog"],
-            "clean_title_collection": ["the quick brown frog"],
+            "clean_title_collection": ["the quick brown doll"],
         },
-        {"n-gram match": [True], "substring score": 82, "match": [True]},
+        {"n-gram match": [True], "substring score": 92, "match": [True]},
     ),
     (
         {
             "clean_title_register": ["the quick brown dog"],
             "clean_title_collection": ["the quick brown aeroplane"],
         },
-        {"n-gram match": [True], "substring score": 74, "match": [False]},
+        {"n-gram match": [True], "substring score": 73, "match": [False]},
     ),
     (
         {
@@ -207,36 +207,36 @@ match_rows = [
 def test_n_gram_substring_match(match_row_cols, expected_row_cols):
     n_gram_data = pd.DataFrame(data=n_gram_data_cols, index=n_gram_data_index)
     match_row = pd.DataFrame(match_row_cols)
-    match_row = n_gram_substring_match(match_row, n_gram_data, 80)
+    match_row = n_gram_substring_match(next(match_row.iterrows()), n_gram_data, 80)
     expected_row = match_row_cols.copy()
     expected_row.update(expected_row_cols)
     expected_data = pd.DataFrame(expected_row)
-    assert_frame_equal(match_row, expected_data)
+    assert_frame_equal(match_row, expected_data.astype(object))
 
 
 match_rows_for_count_cutoff = [
     (
         {
             "clean_title_register": ["the quick brown dog"],
-            "clean_title_collection": ["the quick brown frog"],
+            "clean_title_collection": ["the quick brown doll"],
         },
-        {"n-gram match": [True], "substring score": 82, "match": [True]},
+        {"n-gram match": [True], "substring score": 92, "match": [True]},
         None,
     ),
     (
         {
             "clean_title_register": ["the quick brown dog"],
-            "clean_title_collection": ["the quick brown frog"],
+            "clean_title_collection": ["the quick brown doll"],
         },
-        {"n-gram match": [True], "substring score": 82, "match": [True]},
+        {"n-gram match": [True], "substring score": 92, "match": [True]},
         1,
     ),
     (
         {
             "clean_title_register": ["the quick brown dog"],
-            "clean_title_collection": ["the quick brown frog"],
+            "clean_title_collection": ["the quick brown doll"],
         },
-        {"n-gram match": [True], "substring score": 84, "match": [True]},
+        {"n-gram match": [True], "substring score": 96, "match": [True]},
         2,
     ),
     (
@@ -258,8 +258,10 @@ def test_n_gram_substring_match_with_count_cutoff(
 ):
     n_gram_data = pd.DataFrame(data=n_gram_data_cols, index=n_gram_data_index)
     match_row = pd.DataFrame(match_row_cols)
-    match_row = n_gram_substring_match(match_row, n_gram_data, 80, cutoff)
+    match_row = n_gram_substring_match(
+        next(match_row.iterrows()), n_gram_data, 80, cutoff
+    )
     expected_row = match_row_cols.copy()
     expected_row.update(expected_row_cols)
     expected_data = pd.DataFrame(expected_row)
-    assert_frame_equal(match_row, expected_data)
+    assert_frame_equal(match_row, expected_data.astype(object))

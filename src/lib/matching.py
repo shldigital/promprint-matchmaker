@@ -118,11 +118,11 @@ def match_titles(
 
 
 def n_gram_substring_match(
-    match_row: pd.DataFrame,
+    row: tuple[str, pd.Series],
     n_gram_data: pd.DataFrame,
     score_threshold: int,
     n_gram_count_cutoff: Optional[int] = None,
-):
+) -> pd.DataFrame:
     """
     Evaluates string similarity between register and collection titles by identifying
     common n-grams and scoring the remaining substrings.
@@ -151,6 +151,7 @@ def n_gram_substring_match(
     n_gram_match = False
     score = None
 
+    index, match_row = row
     match_strings = (
         str(match_row["clean_title_register"]),
         str(match_row["clean_title_collection"]),
@@ -162,8 +163,11 @@ def n_gram_substring_match(
     for n_gram in n_gram_data.index:
         if all(n_gram in text for text in match_strings):
             n_gram_match = True
-            substrings = list(
+            replaced = list(
                 text.replace(n_gram, "").strip() for text in match_strings
+            )
+            substrings = list(
+                ' '.join(text.split()) for text in replaced
             )
             score = match_score(substrings[0], substrings[1])
             is_match = score > score_threshold
@@ -171,4 +175,4 @@ def n_gram_substring_match(
     match_row["n-gram match"] = n_gram_match
     match_row["substring score"] = score
     match_row["match"] = is_match
-    return match_row
+    return match_row.to_frame().T
