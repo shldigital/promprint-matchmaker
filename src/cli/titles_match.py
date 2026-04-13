@@ -5,7 +5,8 @@ import pandas as pd
 
 from functools import partial
 from lib.helpers import apply_publishers_index
-from lib.matching import match_titles
+from lib.matching import match_titles, n_gram_substring_match
+from math import floor
 from multiprocessing import Pool
 from pathlib import Path
 from typing import Any
@@ -31,6 +32,7 @@ def main(
     word_threshold: int,
     processes: int,
     publishers_index: Path = None,
+    n_gram_index: Path = None,
     **kwargs: Any,
 ) -> None:
     """
@@ -94,6 +96,23 @@ def main(
             match_list = pool.map(match_titles_p, register.iterrows())
     else:
         match_list = map(match_titles_p, register.iterrows())
+
+    matches: pd.DataFrame = pd.concat(match_list)
+
+    substring_match_p = partial(
+        n_gram_substring_match,
+        n_gram_data=pd.read_csv(n_gram_index, index_col=0),
+        score_threshold=score_threshold,
+        n_gram_count_cutoff=floor(
+            (register.shape[0] + collection.shape[0]) / 1000
+        ),
+    )
+
+    if processes > 1:
+        with Pool(processes) as pool:
+            match_list = pool.map(substring_match_p, matches.iterrows())
+    else:
+        match_list = map(substring_match_p, matches.iterrows())
 
     matches: pd.DataFrame = pd.concat(match_list)
 

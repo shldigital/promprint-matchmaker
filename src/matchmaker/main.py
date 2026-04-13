@@ -57,6 +57,11 @@ def main(args=None) -> None:
         help="File of publisher index used to replace publisher strings with more common names",
     )
     titles_parser.add_argument(
+        "--n_gram_index",
+        type=lambda p: Path(p),
+        help="File of n-gram index used to check for n-gram substring matches",
+    )
+    titles_parser.add_argument(
         "-t",
         "--score_threshold",
         type=int,

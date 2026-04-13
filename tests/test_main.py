@@ -1,4 +1,5 @@
 import pytest
+import pandas as pd
 
 from matchmaker.main import main
 
@@ -6,6 +7,7 @@ register_file = "./tests/test_files/test_register_short.csv"
 collection_file = "./tests/test_files/test_collection_short.tsv"
 bad_register_file = "./tests/test_files/bad_file.txt"
 publisher_index_file = "./tests/test_files/test_publisher_index.csv"
+n_gram_index_file = "./tests/test_files/test_n_gram_index.csv"
 
 test_catalog_1 = "./tests/test_files/test_register_short.csv"
 test_catalog_2 = "./tests/test_files/test_collection_short.tsv"
@@ -36,6 +38,18 @@ def test_titles_bad_register_file_raises(tmp_path):
     ]
     with pytest.raises(KeyError):
         main(test_args)
+
+
+def test_titles_with_n_gram_index(tmp_path):
+    test_args = [
+        "titles",
+        register_file,
+        collection_file,
+        str(tmp_path),
+        f"--n_gram_index={n_gram_index_file}"
+    ]
+    main(test_args)
+    assert False
 
 
 def test_publishers_single_collection_does_not_raise(tmp_path):

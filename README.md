@@ -21,7 +21,9 @@ options:
 `titles` subcommand:
 
 ```
-usage: mm titles [-h] [--publishers_index PUBLISHERS_INDEX] [-t SCORE_THRESHOLD] [-w WORD_THRESHOLD] [-p PROCESSES] register collection outpath
+usage: mm titles [-h] [--publishers_index PUBLISHERS_INDEX] [--n_gram_index N_GRAM_INDEX] [-t SCORE_THRESHOLD]
+                 [-w WORD_THRESHOLD] [-p PROCESSES]
+                 register collection outpath
 
 positional arguments:
   register              File of cleaned register data in csv format
@@ -32,6 +34,8 @@ options:
   -h, --help            show this help message and exit
   --publishers_index PUBLISHERS_INDEX
                         File of publisher index used to replace publisher strings with more common names
+  --n_gram_index N_GRAM_INDEX
+                        File of n-gram index used to check for n-gram substring matches
   -t SCORE_THRESHOLD, --score_threshold SCORE_THRESHOLD
                         Threshold fuzzy matching score (0-100), only keep matches with scores above this value
   -w WORD_THRESHOLD, --word_threshold WORD_THRESHOLD
