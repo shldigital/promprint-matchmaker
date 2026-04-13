@@ -184,21 +184,21 @@ match_rows = [
             "clean_title_register": ["the quick brown dog"],
             "clean_title_collection": ["the quick brown doll"],
         },
-        {"n-gram match": [True], "substring score": 92, "match": [True]},
+        {"n-gram match": [True], "n-gram": ["quick brown"], "substring score": 92, "match": [True]},
     ),
     (
         {
             "clean_title_register": ["the quick brown dog"],
             "clean_title_collection": ["the quick brown aeroplane"],
         },
-        {"n-gram match": [True], "substring score": 73, "match": [False]},
+        {"n-gram match": [True], "n-gram": ["quick brown"], "substring score": 73, "match": [False]},
     ),
     (
         {
             "clean_title_register": ["the terrifying black dog"],
             "clean_title_collection": ["the terrifying black frog"],
         },
-        {"n-gram match": [False], "substring score": None, "match": [True]},
+        {"n-gram match": [False], "n-gram": [None], "substring score": None, "match": [True]},
     ),
 ]
 
@@ -220,7 +220,7 @@ match_rows_for_count_cutoff = [
             "clean_title_register": ["the quick brown dog"],
             "clean_title_collection": ["the quick brown doll"],
         },
-        {"n-gram match": [True], "substring score": 92, "match": [True]},
+        {"n-gram match": [True], "n-gram": ["quick brown"], "substring score": 92, "match": [True]},
         None,
     ),
     (
@@ -228,7 +228,7 @@ match_rows_for_count_cutoff = [
             "clean_title_register": ["the quick brown dog"],
             "clean_title_collection": ["the quick brown doll"],
         },
-        {"n-gram match": [True], "substring score": 92, "match": [True]},
+        {"n-gram match": [True], "n-gram": ["quick brown"], "substring score": 92, "match": [True]},
         1,
     ),
     (
@@ -236,7 +236,7 @@ match_rows_for_count_cutoff = [
             "clean_title_register": ["the quick brown dog"],
             "clean_title_collection": ["the quick brown doll"],
         },
-        {"n-gram match": [True], "substring score": 96, "match": [True]},
+        {"n-gram match": [True], "n-gram": ["quick"], "substring score": 96, "match": [True]},
         2,
     ),
     (
@@ -244,7 +244,7 @@ match_rows_for_count_cutoff = [
             "clean_title_register": ["the quick brown dog"],
             "clean_title_collection": ["the quick brown frog"],
         },
-        {"n-gram match": [False], "substring score": None, "match": [True]},
+        {"n-gram match": [False], "n-gram": [None], "substring score": None, "match": [True]},
         3,
     ),
 ]

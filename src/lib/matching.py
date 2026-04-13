@@ -160,9 +160,12 @@ def n_gram_substring_match(
     if n_gram_count_cutoff is not None:
         n_gram_data = n_gram_data.loc[n_gram_data["count"] > n_gram_count_cutoff]
     n_gram_data = n_gram_data.sort_values(by=["degree", "count"], ascending=False)
+
+    matched_n_gram = None
     for n_gram in n_gram_data.index:
         if all(n_gram in text for text in match_strings):
             n_gram_match = True
+            matched_n_gram = n_gram
             replaced = list(
                 text.replace(n_gram, "").strip() for text in match_strings
             )
@@ -173,6 +176,7 @@ def n_gram_substring_match(
             is_match = score > score_threshold
             break  # Match status is now definitive
     match_row["n-gram match"] = n_gram_match
+    match_row["n-gram"] = matched_n_gram
     match_row["substring score"] = score
     match_row["match"] = is_match
     return match_row.to_frame().T
