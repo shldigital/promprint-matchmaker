@@ -49,7 +49,6 @@ def test_titles_with_n_gram_index(tmp_path):
         f"--n_gram_index={n_gram_index_file}"
     ]
     main(test_args)
-    assert False
 
 
 def test_publishers_single_collection_does_not_raise(tmp_path):

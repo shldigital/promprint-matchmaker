@@ -194,7 +194,7 @@ def n_gram_substring_match(
     n_gram_data = n_gram_data.sort_values(by=["degree", "count"], ascending=False)
 
     for n_gram in n_gram_data.index:
-        n_gram_tokens = n_gram.split()
+        n_gram_tokens = str(n_gram).split()
         n_gram_token_len = len(n_gram_tokens)
         n_gram_indices = list(map(lambda seq: find_index(n_gram_tokens, seq), match_entries))
         if all(index > -1 for index in n_gram_indices):
