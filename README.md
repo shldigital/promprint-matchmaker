@@ -2,23 +2,25 @@
 
 Search algorithms for matching book title strings across different registers for the [Promprint](https://www.promiscuousprint.com/) project
 
-Usage:
+## General usage:
 ```
-usage: mm [-h] [-d] {titles,publishers} ...
+usage: mm [-h] [-d] {titles,publishers,n_grams} ...
 
 Find register's hall entries in collections of library data
 
 positional arguments:
-  {titles,publishers}  Matching subjects
-    titles             Match titles in register to those in a collection
-    publishers         Create a publishers index by grouping similar publisher names
+  {titles,publishers,n_grams}
+                        Matching subjects
+    titles              Match titles in register to those in a collection
+    publishers          Create a publishers index by grouping similar publisher names
+    n_grams             Create a n_gram index
 
 options:
-  -h, --help           show this help message and exit
-  -d, --debug          Print debug messages
+  -h, --help            show this help message and exit
+  -d, --debug           Print debug messages
 ```
 
-`titles` subcommand:
+## `titles` subcommand:
 
 ```
 usage: mm titles [-h] [--publishers_index PUBLISHERS_INDEX] [--n_gram_index N_GRAM_INDEX] [-t SCORE_THRESHOLD]
@@ -51,7 +53,7 @@ uv run mm titles -p 8 ../promprint-data/register_export.csv ../promprint-data/nl
 
 This takes the `register_export.csv` register data and looks for entries from that register within `nls_catalog_export.tsv`, and outputs match info to the `/promprint-data` folder.
 
-`publishers` subcommand:
+## `publishers` subcommand:
 
 ```
 usage: mm publishers [-h] [-n N_TOP] [-t SCORE_THRESHOLD] outpath collections [collections ...]
@@ -76,7 +78,7 @@ uv run mm publishers ../promprint-data/ ../promprint-data/register_export.csv ..
 
 This takes the `register_export.csv` register data and the `nls_catalog_export.tsv` catalog data, and collects all cleaned publisher names from these files. It calculates the N_TOP most frequent publisher names and matches each one of those in turn against all other entries. Close matches will be recorded in the index. The script outputs match info to the `/promprint-data` folder.
 
-`n_grams` subcommand:
+## `n_grams` subcommand:
 
 ```
 usage: mm n_grams [-h] [-c COLUMNS [COLUMNS ...]] [-n N_TOP] [-t SCORE_THRESHOLD] outpath catalog catalog
