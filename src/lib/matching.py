@@ -206,7 +206,14 @@ def n_gram_substring_match(
                 del entry_tokens[sub_index:sub_index + n_gram_token_len]
                 substrings.append(' '.join(entry_tokens))
 
-            score = match_score(substrings[0], substrings[1])
+            if any(len(substring) < 1 for substring in substrings):
+                # Manually handle the case where one entry is just a frequent n-gram
+                # which would normally result in score 0. This condition also covers
+                # the case where both entries are just a frequent n-gram but gives the
+                # same result as without this exception (score 100)
+                score = 100
+            else:
+                score = match_score(substrings[0], substrings[1])
             is_match = score > score_threshold
             break  # Match status is now definitive
     match_row["n-gram match"] = n_gram_match
