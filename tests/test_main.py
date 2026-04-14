@@ -46,7 +46,7 @@ def test_titles_with_n_gram_index(tmp_path):
         register_file,
         collection_file,
         str(tmp_path),
-        f"--n_gram_index={n_gram_index_file}"
+        f"--n_gram_index={n_gram_index_file}",
     ]
     main(test_args)
 
@@ -75,4 +75,23 @@ def test_publishers_bad_collection_raises(tmp_path):
 
 def test_calling_n_gram_list(tmp_path):
     test_args = ["n_grams", str(tmp_path), test_catalog_1, test_catalog_2]
+    outfile = tmp_path / "n_gram_clean_title.csv"
     main(test_args)
+    assert outfile.exists()
+
+
+def test_calling_n_gram_list_with_multiple_columns(tmp_path):
+    columns = ["clean_title", "clean_publisher"]
+    test_args = [
+        "n_grams",
+        str(tmp_path),
+        test_catalog_1,
+        test_catalog_2,
+        "--columns",
+        *columns,
+    ]
+    main(test_args)
+    for column in columns:
+        basename = f"n_gram_{column}.csv"
+        outfile = tmp_path / basename
+        assert outfile.exists()

@@ -102,4 +102,11 @@ Usage example:
 uv run mm n_grams ../promprint-data/ ../promprint-data/register_export.csv ../promprint-data/nls_catalog_export.tsv
 ```
 
-This takes the `register_export.csv` register data and the `nls_catalog_export.tsv` catalog data, and collects all n\_grams from the specified columns found in these files. It takes the N_TOP most frequent n\_grams and outputs this list to the `/promprint-data` folder, alongside the full list of _all_ n\_grams found as well as a plot of the frequency of n\_grams.
+This takes the `register_export.csv` register data and the `nls_catalog_export.tsv` catalog data, and collects all n\_grams from the default "clean\_title" column found in these files. It takes the N_TOP most frequent n\_grams and outputs this list to the `/promprint-data` folder, alongside the full list of _all_ n\_grams found as well as a plot of the frequency of n\_grams.
+
+Run the n-gram compilation for multiple columns:
+```
+uv run mm n_grams ../promprint-data/ ../promprint-data/register_export.csv ../promprint-data/nls_catalog_export.tsv --columns clean_title clean_publisher
+```
+
+This takes the `register_export.csv` register data and the `nls_catalog_export.tsv` catalog data, and collects all n\_grams from the specified columns found in these files, here "clean_title" and "clean_publisher". It takes the N_TOP most frequent n\_grams and outputs this list to the `/promprint-data` folder, alongside the full list of _all_ n\_grams found as well as a plot of the frequency of n\_grams.
