@@ -99,22 +99,23 @@ def main(
 
     matches: pd.DataFrame = pd.concat(match_list)
 
-    substring_match_p = partial(
-        n_gram_substring_match,
-        n_gram_data=pd.read_csv(n_gram_index, index_col=0),
-        score_threshold=score_threshold,
-        n_gram_count_cutoff=floor(
-            (register.shape[0] + collection.shape[0]) / 1000
-        ),
-    )
+    if n_gram_index is not None:
+        substring_match_p = partial(
+            n_gram_substring_match,
+            n_gram_data=pd.read_csv(n_gram_index, index_col=0),
+            score_threshold=score_threshold,
+            n_gram_count_cutoff=floor(
+                (register.shape[0] + collection.shape[0]) / 1000
+            ),
+        )
 
-    if processes > 1:
-        with Pool(processes) as pool:
-            match_list = pool.map(substring_match_p, matches.iterrows())
-    else:
-        match_list = map(substring_match_p, matches.iterrows())
+        if processes > 1:
+            with Pool(processes) as pool:
+                match_list = pool.map(substring_match_p, matches.iterrows())
+        else:
+            match_list = map(substring_match_p, matches.iterrows())
 
-    matches: pd.DataFrame = pd.concat(match_list)
+        matches: pd.DataFrame = pd.concat(match_list)
 
     today = datetime.date.today().strftime("%Y-%m-%d")
     register_name = matches["register_register"].iloc[0]
