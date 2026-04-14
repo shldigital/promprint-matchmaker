@@ -1,31 +1,8 @@
 import matplotlib.pyplot as plt
-import pandas as pd
+from lib.helpers import collect_columns
 from lib.n_gram import multi_n_gram_frequency, sort_n_grams_by_degree
 from pathlib import Path
 from typing import Any
-
-
-def collect_columns(data_paths: list[Path], columns: list[str]) -> pd.DataFrame:
-    """
-    Load a list dataframes and collect columns from each into one dataframe.
-
-    :param data_paths: List of Paths to files containing data
-    :type data_paths: pathlib.Path
-    :param columns: Columns to extract from each of the files. Throws if a column
-      is missing
-    :type columns: list[str]
-    """
-    collected_df = pd.DataFrame()
-    for path in data_paths:
-        df = pd.read_csv(path, sep=("\t" if "tsv" in str(path) else ","))
-        if not all(name in df.columns for name in columns):
-            raise KeyError(
-                f"Input file '{path}' does not have relevant columns: {columns}"
-            )
-        collected_df = pd.concat(
-            [collected_df, df.filter(columns, axis=1).astype("str")]
-        )
-    return collected_df
 
 
 def main(
