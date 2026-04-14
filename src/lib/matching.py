@@ -7,6 +7,37 @@ from thefuzz import fuzz
 from typing import Optional
 
 
+# Source for index function - https://stackoverflow.com/a/426168
+# Posted by jfs, modified by community. See post 'Timeline' for change history
+# Retrieved 2026-04-13, License - CC BY-SA 3.0
+def find_index(subseq, seq):
+    """Return an index of `subseq`uence in the `seq`uence.
+
+    Or `-1` if `subseq` is not a subsequence of the `seq`.
+
+    The time complexity of the algorithm is O(n*m), where
+
+        n, m = len(seq), len(subseq)
+
+    >>> find_index([1,2], range(5))
+    1
+    >>> find_index(range(1, 6), range(5))
+    -1
+    >>> find_index(range(5), range(5))
+    0
+    >>> find_index([1,2], [0, 1, 0, 1, 2])
+    3
+    """
+    i, n, m = -1, len(seq), len(subseq)
+    try:
+        while True:
+            i = seq.index(subseq[0], i + 1, n - m + 1)
+            if subseq == seq[i:i + m]:
+                return i
+    except ValueError:
+        return -1
+
+
 def match_score(text_1: str, text_2: str, short_len: Optional[int] = None) -> int:
     """
     Return the similary score of two input texts.
@@ -147,31 +178,34 @@ def n_gram_substring_match(
         'substring score', and 'match'.
     :rtype: pd.DataFrame
     """
-    is_match = True
     n_gram_match = False
+    matched_n_gram = None
     score = None
+    is_match = True
 
     index, match_row = row
-    match_strings = (
-        str(match_row["clean_title_register"]),
-        str(match_row["clean_title_collection"]),
+    match_entries = (
+        str(match_row["clean_title_register"]).split(),
+        str(match_row["clean_title_collection"]).split(),
     )
 
     if n_gram_count_cutoff is not None:
         n_gram_data = n_gram_data.loc[n_gram_data["count"] > n_gram_count_cutoff]
     n_gram_data = n_gram_data.sort_values(by=["degree", "count"], ascending=False)
 
-    matched_n_gram = None
     for n_gram in n_gram_data.index:
-        if all(n_gram in text for text in match_strings):
+        n_gram_tokens = n_gram.split()
+        n_gram_token_len = len(n_gram_tokens)
+        n_gram_indices = list(map(lambda seq: find_index(n_gram_tokens, seq), match_entries))
+        if all(index > -1 for index in n_gram_indices):
             n_gram_match = True
             matched_n_gram = n_gram
-            replaced = list(
-                text.replace(n_gram, "").strip() for text in match_strings
-            )
-            substrings = list(
-                ' '.join(text.split()) for text in replaced
-            )
+            substrings = []
+            for i, entry_tokens in enumerate(match_entries):
+                sub_index = n_gram_indices[i]
+                del entry_tokens[sub_index:sub_index + n_gram_token_len]
+                substrings.append(' '.join(entry_tokens))
+
             score = match_score(substrings[0], substrings[1])
             is_match = score > score_threshold
             break  # Match status is now definitive
