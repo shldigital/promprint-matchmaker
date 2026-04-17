@@ -32,7 +32,7 @@ def find_index(subseq, seq):
     try:
         while True:
             i = seq.index(subseq[0], i + 1, n - m + 1)
-            if subseq == seq[i:i + m]:
+            if subseq == seq[i : i + m]:
                 return i
     except ValueError:
         return -1
@@ -196,15 +196,17 @@ def n_gram_substring_match(
     for n_gram in n_gram_data.index:
         n_gram_tokens = str(n_gram).split()
         n_gram_token_len = len(n_gram_tokens)
-        n_gram_indices = list(map(lambda seq: find_index(n_gram_tokens, seq), match_entries))
+        n_gram_indices = list(
+            map(lambda seq: find_index(n_gram_tokens, seq), match_entries)
+        )
         if all(index > -1 for index in n_gram_indices):
             n_gram_match = True
             matched_n_gram = n_gram
             substrings = []
             for i, entry_tokens in enumerate(match_entries):
                 sub_index = n_gram_indices[i]
-                del entry_tokens[sub_index:sub_index + n_gram_token_len]
-                substrings.append(' '.join(entry_tokens))
+                del entry_tokens[sub_index : sub_index + n_gram_token_len]
+                substrings.append(" ".join(entry_tokens))
 
             if any(len(substring) < 1 for substring in substrings):
                 # Manually handle the case where one entry is just a frequent n-gram
