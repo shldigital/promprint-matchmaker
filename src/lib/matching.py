@@ -217,6 +217,28 @@ def n_gram_substring_match(
             else:
                 score = match_score(substrings[0], substrings[1])
             is_match = score > score_threshold
+
+            index_diff = n_gram_indices[0] - n_gram_indices[1]
+            if (abs(index_diff) == 1) and not is_match:
+                # If the difference in match status is down to the first word being
+                # missing, then retry the match without the first word, in case it's
+                # a missing author name or article like 'the'
+                # Note that match_entries has already had n-gram deleted
+                greater_index = 0
+                if index_diff < 0:
+                    greater_index = 1
+                substrings = []
+                del match_entries[greater_index][0]
+                substrings = list(map(lambda tokens: " ".join(tokens), match_entries))
+                if any(len(substring) < 1 for substring in substrings):
+                    # Manually handle the case where one entry is just a frequent n-gram
+                    # which would normally result in score 0. This condition also covers
+                    # the case where both entries are just a frequent n-gram but gives the
+                    # same result as without this exception (score 100)
+                    score = 100
+                else:
+                    score = match_score(substrings[0], substrings[1])
+                is_match = score > score_threshold
             break  # Match status is now definitive
     match_row["n-gram match"] = n_gram_match
     match_row["n-gram"] = matched_n_gram

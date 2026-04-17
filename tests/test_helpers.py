@@ -300,3 +300,32 @@ def test_n_gram_substring_match_with_count_cutoff(
     expected_row.update(expected_row_cols)
     expected_data = pd.DataFrame(expected_row)
     assert_frame_equal(match_row, expected_data.astype(object))
+
+
+match_rows_for_first_word_drop = [
+    (
+        {
+            "clean_title_register": ["rachels quick brown hog"],
+            "clean_title_collection": ["quick brown hog"],
+        },
+        {
+            "n-gram match": [True],
+            "n-gram": ["quick brown"],
+            "substring score": 100,
+            "match": [True],
+        },
+    ),
+]
+
+
+@pytest.mark.parametrize(
+    "match_row_cols, expected_row_cols", match_rows_for_first_word_drop
+)
+def test_first_word_drop_condition(match_row_cols, expected_row_cols):
+    n_gram_data = pd.DataFrame(data=n_gram_data_cols, index=n_gram_data_index)
+    match_row = pd.DataFrame(match_row_cols)
+    match_row = n_gram_substring_match(next(match_row.iterrows()), n_gram_data, 80)
+    expected_row = match_row_cols.copy()
+    expected_row.update(expected_row_cols)
+    expected_data = pd.DataFrame(expected_row)
+    assert_frame_equal(match_row, expected_data.astype(object))
