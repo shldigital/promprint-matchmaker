@@ -7,7 +7,7 @@ from thefuzz import fuzz
 from typing import Optional
 
 
-# Source for index function - https://stackoverflow.com/a/426168
+# Source for find_index function - https://stackoverflow.com/a/426168
 # Posted by jfs, modified by community. See post 'Timeline' for change history
 # Retrieved 2026-04-13, License - CC BY-SA 3.0
 def find_index(subseq, seq):
@@ -38,7 +38,9 @@ def find_index(subseq, seq):
         return -1
 
 
-def match_score(text_1: str, text_2: str, short_len: Optional[int] = None) -> int:
+def match_score(
+    text_1: str, text_2: str, match_empty: bool = False, short_len: Optional[int] = None
+) -> int:
     """
     Return the similary score of two input texts.
 
@@ -48,12 +50,21 @@ def match_score(text_1: str, text_2: str, short_len: Optional[int] = None) -> in
     :type text_1: str
     :param text_2: Second piece of text to match
     :type text_2: str
+    :param match_empty: if true returns a score of 100 when one string is empty
+    :type match_empty: bool
     :param short_len: If `short_len` is given then texts with fewer tokens than
     this are only matched at the beginning of longer texts.
     :type short_len: Optional[int]
     :return: Match score indicating how similar the texts are
     :rtype: int
     """
+    if match_empty and ((text_1 == "") or (text_2 == "")):
+        # Manually handle the case where one entry is empty because the
+        # full string was just a frequent n-gram that was then deleted.
+        # This would normally result in score 0. This condition also covers
+        # the case where both entries are just a frequent n-gram but gives the
+        # same result as without this exception (score 100)
+        return 100
     if short_len:
         toks = [text_1.split(" "), text_2.split(" ")]
         toks.sort(key=len)
@@ -208,14 +219,7 @@ def n_gram_substring_match(
                 del entry_tokens[sub_index : sub_index + n_gram_token_len]
                 substrings.append(" ".join(entry_tokens))
 
-            if any(len(substring) < 1 for substring in substrings):
-                # Manually handle the case where one entry is just a frequent n-gram
-                # which would normally result in score 0. This condition also covers
-                # the case where both entries are just a frequent n-gram but gives the
-                # same result as without this exception (score 100)
-                score = 100
-            else:
-                score = match_score(substrings[0], substrings[1])
+            score = match_score(substrings[0], substrings[1], match_empty=True)
             is_match = score > score_threshold
 
             index_diff = n_gram_indices[0] - n_gram_indices[1]
@@ -229,14 +233,7 @@ def n_gram_substring_match(
                     greater_index = 1
                 del match_entries[greater_index][0]
                 substrings = list(map(lambda tokens: " ".join(tokens), match_entries))
-                if any(len(substring) < 1 for substring in substrings):
-                    # Manually handle the case where one entry is just a frequent n-gram
-                    # which would normally result in score 0. This condition also covers
-                    # the case where both entries are just a frequent n-gram but gives the
-                    # same result as without this exception (score 100)
-                    score = 100
-                else:
-                    score = match_score(substrings[0], substrings[1])
+                score = match_score(substrings[0], substrings[1], match_empty=True)
                 is_match = score > score_threshold
             break  # Match status is now definitive
     match_row["n-gram match"] = n_gram_match
