@@ -227,7 +227,6 @@ def n_gram_substring_match(
                 greater_index = 0
                 if index_diff < 0:
                     greater_index = 1
-                substrings = []
                 del match_entries[greater_index][0]
                 substrings = list(map(lambda tokens: " ".join(tokens), match_entries))
                 if any(len(substring) < 1 for substring in substrings):
