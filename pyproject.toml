@@ -5,13 +5,11 @@ description = "Search algorithms for matching book title strings across differen
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "dotenv>=0.9.9",
     "matplotlib>=3.10.8",
     "nltk>=3.9.2",
     "pandas>=2.3.3",
     "pytest>=9.0.1",
     "thefuzz>=0.22.1",
-    "typesense>=1.3.0",
 ]
 
 [project.scripts]
