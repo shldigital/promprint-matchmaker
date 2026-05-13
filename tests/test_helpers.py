@@ -222,11 +222,59 @@ match_rows = [
 def test_n_gram_substring_match(match_row_cols, expected_row_cols):
     n_gram_data = pd.DataFrame(data=n_gram_data_cols, index=n_gram_data_index)
     match_row = pd.DataFrame(match_row_cols)
-    match_row = n_gram_substring_match(next(match_row.iterrows()), n_gram_data, 80)
+    match_row = n_gram_substring_match(
+        next(match_row.iterrows()),
+        n_gram_data,
+        "clean_title_register",
+        "clean_title_collection",
+        80,
+    )
     expected_row = match_row_cols.copy()
     expected_row.update(expected_row_cols)
     expected_data = pd.DataFrame(expected_row)
     assert_frame_equal(match_row, expected_data.astype(object))
+
+
+bad_column_name_data = [
+    (
+        {
+            "clean_title_register": ["the terrifying black dog"],
+            "clean_title_collection": ["the terrifying black frog"],
+        },
+        "clean_title_register",
+        "not_a_column",
+    ),
+    (
+        {
+            "clean_title_register": ["the terrifying black dog"],
+            "clean_title_collection": ["the terrifying black frog"],
+        },
+        "not_a_column",
+        "clean_title_register",
+    ),
+    (
+        {
+            "clean_title_register": ["the terrifying black dog"],
+            "clean_title_collection": ["the terrifying black frog"],
+        },
+        "not_a_column",
+        "not_a_column_either",
+    ),
+]
+
+
+@pytest.mark.parametrize(
+    "match_row_cols, match_col_1, match_col_2", bad_column_name_data
+)
+def test_n_gram_substring_match_raises_with_bad_columns(
+    match_row_cols, match_col_1, match_col_2
+):
+    n_gram_data = pd.DataFrame(data=n_gram_data_cols, index=n_gram_data_index)
+    match_row = pd.DataFrame(match_row_cols)
+    with pytest.raises(KeyError):
+        match_row = n_gram_substring_match(
+            next(match_row.iterrows()), n_gram_data, match_col_1, match_col_2, 80
+        )
 
 
 match_rows_for_count_cutoff = [
@@ -294,7 +342,12 @@ def test_n_gram_substring_match_with_count_cutoff(
     n_gram_data = pd.DataFrame(data=n_gram_data_cols, index=n_gram_data_index)
     match_row = pd.DataFrame(match_row_cols)
     match_row = n_gram_substring_match(
-        next(match_row.iterrows()), n_gram_data, 80, cutoff
+        next(match_row.iterrows()),
+        n_gram_data,
+        "clean_title_register",
+        "clean_title_collection",
+        80,
+        cutoff,
     )
     expected_row = match_row_cols.copy()
     expected_row.update(expected_row_cols)
@@ -324,7 +377,13 @@ match_rows_for_first_word_drop = [
 def test_first_word_drop_condition(match_row_cols, expected_row_cols):
     n_gram_data = pd.DataFrame(data=n_gram_data_cols, index=n_gram_data_index)
     match_row = pd.DataFrame(match_row_cols)
-    match_row = n_gram_substring_match(next(match_row.iterrows()), n_gram_data, 80)
+    match_row = n_gram_substring_match(
+        next(match_row.iterrows()),
+        n_gram_data,
+        "clean_title_register",
+        "clean_title_collection",
+        80,
+    )
     expected_row = match_row_cols.copy()
     expected_row.update(expected_row_cols)
     expected_data = pd.DataFrame(expected_row)

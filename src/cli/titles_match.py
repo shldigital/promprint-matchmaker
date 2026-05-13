@@ -103,6 +103,8 @@ def main(
         substring_match_p = partial(
             n_gram_substring_match,
             n_gram_data=pd.read_csv(n_gram_index, index_col=0),
+            match_col_1="clean_title_register",
+            match_col_2="clean_title_collection",
             score_threshold=score_threshold,
             n_gram_count_cutoff=floor(
                 (register.shape[0] + collection.shape[0]) / 1000

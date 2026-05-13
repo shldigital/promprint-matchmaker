@@ -162,23 +162,30 @@ def match_titles(
 def n_gram_substring_match(
     row: tuple[str, pd.Series],
     n_gram_data: pd.DataFrame,
+    match_col_1: str,
+    match_col_2: str,
     score_threshold: int,
     n_gram_count_cutoff: Optional[int] = None,
 ) -> pd.DataFrame:
     """
-    Evaluates string similarity between register and collection titles by identifying
-    common n-grams and scoring the remaining substrings.
+    Evaluates string similarity between column data by identifying common n-grams and
+    scoring the remaining substrings.
 
     The function filters the n-gram dataset, identifies the highest-priority shared
     n-gram between two strings, and calculates a match score based on the text
     left over after the n-gram is removed.
 
     :param match_row: A Single dataframe row including corresponding, matched entries
-        from two catalogs e.g. 'clean_title_register' and 'clean_title_collection'
+        from two columns defined by match_col_1 and match_col_2 e.g.
+        'clean_title_register' and 'clean_title_collection'
     :type match_row: pd.DataFrame
     :param n_gram_data: A DataFrame where the index contains n-gram strings and
         columns include 'degree' and 'count' for sorting and filtering.
     :type n_gram_data: pd.DataFrame
+    :param match_col_1: match data from this column against data from match_col_2
+    :type match_col_1: str
+    :param match_col_2: match data from this column against data from match_col_1
+    :type match_col_2: str
     :param score_threshold: The minimum integer score required for the remaining
         substrings to be considered a valid match.
     :type score_threshold: int
@@ -195,10 +202,15 @@ def n_gram_substring_match(
     is_match = True
 
     index, match_row = row
-    match_entries = (
-        str(match_row["clean_title_register"]).split(),
-        str(match_row["clean_title_collection"]).split(),
-    )
+    try:
+        match_entries = (
+            str(match_row[match_col_1]).split(),
+            str(match_row[match_col_2]).split(),
+        )
+    except KeyError:
+        raise KeyError(
+            f"Input row: {match_row}\ndoes not have relevant columns: {match_col_1, match_col_2}"
+        )
 
     if n_gram_count_cutoff is not None:
         n_gram_data = n_gram_data.loc[n_gram_data["count"] > n_gram_count_cutoff]
