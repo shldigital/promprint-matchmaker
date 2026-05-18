@@ -56,7 +56,8 @@ This takes the `register_export.csv` register data and looks for entries from th
 ## `publishers` subcommand:
 
 ```
-usage: mm publishers [-h] [-n N_TOP] [-t SCORE_THRESHOLD] outpath collections [collections ...]
+usage: mm publishers [-h] [-n N_TOP] [-t SCORE_THRESHOLD] [--n_gram_index N_GRAM_INDEX]
+                     outpath collections [collections ...]
 
 positional arguments:
   outpath               Output file location
@@ -68,6 +69,8 @@ options:
                         Group similar matches for only the n_top most frequent publisher names
   -t SCORE_THRESHOLD, --score_threshold SCORE_THRESHOLD
                         Threshold fuzzy matching score (0-100), only keep matches with scores above this value
+  --n_gram_index N_GRAM_INDEX
+                        File of n-gram index used to check for n-gram substring matches
 ```
 
 Usage example (default score threshold and number of top most frequent publishers used to generate indexes):
@@ -77,6 +80,12 @@ uv run mm publishers ../promprint-data/ ../promprint-data/register_export.csv ..
 ```
 
 This takes the `register_export.csv` register data and the `nls_catalog_export.tsv` catalog data, and collects all cleaned publisher names from these files. It calculates the N_TOP most frequent publisher names and matches each one of those in turn against all other entries. Close matches will be recorded in the index. The script outputs match info to the `/promprint-data` folder.
+
+You can also pass a index of common n-grams found in the publisher columns (generated using the `n_grams` subcommand, below). This will use the n-gram substring match scoring method (reference to follow) to match publisher names for the purposes of being indexed.
+```
+uv run mm publishers --n_gram_index=../promprint-data/publishers_n_gram_index.csv ../promprint-data/ ../promprint-data/register_export.csv ../promprint-data/nls_catalog_export.tsv
+```
+
 
 ## `n_grams` subcommand:
 

@@ -2,7 +2,9 @@
 
 import numpy as np
 import pandas as pd
-from lib.matching import match_score
+from functools import partial
+from lib.helpers import collect_columns
+from lib.matching import match_score, n_gram_substring_match
 from pathlib import Path
 from typing import Any
 
@@ -116,8 +118,9 @@ def main(
     collections: list[Path],
     n_top: int,
     score_threshold: int,
+    n_gram_index: Path = None,
     **kwargs: Any,
-):
+) -> None:
     """
     Create a grouped index of publishers from a cleaned collection.
 
@@ -126,7 +129,7 @@ def main(
 
     :param outpath: Path to folder where results will be save as csv
     :type collection_path: pathlib.Path
-    :param collections: List of Paths to csv file containing register
+    :param collections: List of Paths to csv or tsv file containing register
       or catalog data, publishers from each of these files will be collected
     :type collections: pathlib.Path
     :param n_top: Check only the top N most frequent publisher names for grouping
@@ -134,18 +137,13 @@ def main(
     :param score_threshold: Only publisher strings with similarity score greather
       than this threshold are grouped
     :type score_threshold: int
+    :param n_gram_index: Index of common n-grams found in the publisher column.
+      This is used to refine matching when publisher names contain very common
+      n-gram substrings
+    :type n_gram_index: Path
     """
     outpath.mkdir(parents=False, exist_ok=True)
-    publishers_df = pd.DataFrame()
-    for path in collections:
-        df = pd.read_csv(path, sep=("\t" if "tsv" in str(path) else ","))
-        if not all(name in df.columns for name in expected_columns):
-            raise KeyError(
-                f"Input file '{path}' does not have relevant columns: {expected_columns}"
-            )
-        publishers_df = pd.concat(
-            [publishers_df, df.filter(expected_columns, axis=1).astype("str")]
-        )
+    publishers_df = collect_columns(collections, expected_columns)
     publisher_frequency_df = (
         publishers_df["clean_publisher"]
         .value_counts()
@@ -155,6 +153,7 @@ def main(
     pf_working = publisher_frequency_df.copy().drop(columns=["count"])
 
     top_publishers_df = publisher_frequency_df.head(n_top)
+
     matches = pd.DataFrame()
     for publisher_row in top_publishers_df.iterrows():
         index, row = publisher_row
@@ -168,6 +167,21 @@ def main(
         scores = scores[scores["match_score"] > score_threshold]
         matches = pd.concat([scores, matches])
 
+    if n_gram_index is not None:
+        n_gram_df = pd.read_csv(n_gram_index, index_col=0)
+        substring_match_p = partial(
+            n_gram_substring_match,
+            n_gram_data=n_gram_df,
+            match_col_1="clean_publisher",
+            match_col_2="common_name",
+            score_threshold=score_threshold,
+        )
+
+        match_list = map(substring_match_p, matches.iterrows())
+
+        matches: pd.DataFrame = pd.concat(match_list)
+
+    # TODO: issue this up
     publishers_df["indexed_publisher"] = publishers_df["clean_publisher"]
     publishers_df["id_pub_score"] = np.nan
 

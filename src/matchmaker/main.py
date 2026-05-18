@@ -113,6 +113,11 @@ def main(args=None) -> None:
         default=90,
         help="Threshold fuzzy matching score (0-100), only keep matches with scores above this value",
     )
+    publishers_parser.add_argument(
+        "--n_gram_index",
+        type=lambda p: Path(p),
+        help="File of n-gram index used to check for n-gram substring matches",
+    )
 
     publishers_parser.set_defaults(func=publisher_index.main)
 
