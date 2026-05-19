@@ -90,7 +90,7 @@ uv run mm publishers --n_gram_index=../promprint-data/publishers_n_gram_index.cs
 ## `n_grams` subcommand:
 
 ```
-usage: mm n_grams [-h] [-c COLUMNS [COLUMNS ...]] [-n N_TOP] [-t SCORE_THRESHOLD] outpath catalog catalog
+usage: mm n_grams [-h] [-c COLUMNS [COLUMNS ...]] [-t SCORE_THRESHOLD] outpath catalog catalog
 
 positional arguments:
   outpath               Output file location
@@ -100,8 +100,6 @@ options:
   -h, --help            show this help message and exit
   -c COLUMNS [COLUMNS ...], --columns COLUMNS [COLUMNS ...]
                         Columns to create n-grams for, will create a separate list per column, default "clean_titles"
-  -n N_TOP, --n_top N_TOP
-                        Top n-grams to include in the index
   -t SCORE_THRESHOLD, --score_threshold SCORE_THRESHOLD
                         Threshold fuzzy matching score (0-100), only keep matches with scores above this value
 ```

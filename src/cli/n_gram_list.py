@@ -32,8 +32,5 @@ def main(
         n_gram_frame = multi_n_gram_frequency(token_list)
         basename = f"n_gram_{column}"
         list_file = basename + ".csv"
-        n_gram_frame.loc[n_gram_frame["count"] > 2].to_csv(outpath / list_file)
-
-        n_gram_top_ordered = sort_n_grams_by_degree(n_gram_frame)
-        ordered_file = basename + "_ordered.csv"
-        n_gram_top_ordered.to_csv(outpath / ordered_file)
+        n_gram_frame = n_gram_frame.loc[n_gram_frame["count"] > 2]
+        n_gram_frame.to_csv(outpath / list_file)
