@@ -359,7 +359,7 @@ match_rows_for_first_word_drop = [
     (
         {
             "clean_title_register": ["rachels quick brown hog"],
-            "clean_title_collection": ["quick brown hog"],
+            "clean_title_collection": ["quick brown hog and many other tales"],
         },
         {
             "n-gram match": [True],
@@ -383,6 +383,7 @@ def test_first_word_drop_condition(match_row_cols, expected_row_cols):
         "clean_title_register",
         "clean_title_collection",
         80,
+        drop_first=True
     )
     expected_row = match_row_cols.copy()
     expected_row.update(expected_row_cols)

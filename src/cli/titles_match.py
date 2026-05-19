@@ -109,6 +109,7 @@ def main(
             n_gram_count_cutoff=floor(
                 (register.shape[0] + collection.shape[0]) / 1000
             ),
+            drop_first=True
         )
 
         if processes > 1:

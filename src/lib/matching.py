@@ -166,6 +166,7 @@ def n_gram_substring_match(
     match_col_2: str,
     score_threshold: int,
     n_gram_count_cutoff: Optional[int] = None,
+    drop_first: bool = False
 ) -> pd.DataFrame:
     """
     Evaluates string similarity between column data by identifying common n-grams and
@@ -192,6 +193,10 @@ def n_gram_substring_match(
     :param n_gram_count_cutoff: The minimum frequency count required for an n-gram
         to be included in the search. If None, no filtering is applied.
     :type n_gram_count_cutoff: Optional[int]
+    :param drop_first: If the difference in match status is down to the first word being
+        missing, then retry the match without the first word, in case it's
+        a missing author name or article like 'the'
+    :type drop_first: bool
     :returns: The modified input DataFrame row with additional columns: 'n-gram match',
         'substring score', and 'match'.
     :rtype: pd.DataFrame
@@ -235,11 +240,7 @@ def n_gram_substring_match(
             is_match = score > score_threshold
 
             index_diff = n_gram_indices[0] - n_gram_indices[1]
-            if (abs(index_diff) == 1) and not is_match:
-                # If the difference in match status is down to the first word being
-                # missing, then retry the match without the first word, in case it's
-                # a missing author name or article like 'the'
-                # Note that match_entries has already had n-gram deleted
+            if drop_first and (abs(index_diff) == 1) and not is_match:
                 greater_index = 0
                 if index_diff < 0:
                     greater_index = 1
