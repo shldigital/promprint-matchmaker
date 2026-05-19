@@ -103,7 +103,7 @@ def main(args=None) -> None:
         "-n",
         "--n_top",
         type=int,
-        default=20,
+        default=40,
         help="Group similar matches for only the n_top most frequent publisher names",
     )
     publishers_parser.add_argument(
