@@ -5,6 +5,7 @@ import pandas as pd
 from functools import partial
 from lib.helpers import collect_columns
 from lib.matching import match_score, n_gram_substring_match
+from math import floor
 from pathlib import Path
 from typing import Any
 
@@ -150,6 +151,8 @@ def main(
         .drop(publisher_blacklist, errors="ignore")
         .reset_index()
     )
+    n_publishers = publisher_frequency_df.shape[0]
+
     pf_working = publisher_frequency_df.copy().drop(columns=["count"])
 
     top_publishers_df = publisher_frequency_df.head(n_top)
@@ -175,6 +178,10 @@ def main(
             match_col_1="clean_publisher",
             match_col_2="common_name",
             score_threshold=score_threshold,
+            n_gram_count_cutoff=floor(
+                n_publishers / 1000
+            ),
+
         )
 
         match_list = map(substring_match_p, matches.iterrows())
