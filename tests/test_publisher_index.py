@@ -3,7 +3,6 @@ import pandas as pd
 import pytest
 
 from pathlib import Path
-from pandas.testing import assert_frame_equal
 from src.cli.publisher_index import main
 
 test_register = Path("./tests/test_files/test_register_cleaned.csv")
