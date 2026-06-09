@@ -114,12 +114,12 @@ publisher_blacklist = [
 
 
 def main(
-    debug: bool,
     outpath: Path,
     collections: list[Path],
     n_top: int,
     score_threshold: int,
     n_gram_index: Path = None,
+    debug: bool = False,
     **kwargs: Any,
 ) -> None:
     """
