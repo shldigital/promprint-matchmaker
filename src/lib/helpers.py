@@ -20,11 +20,11 @@ def apply_publishers_index(
     publisher_string: str, publishers_index: pd.DataFrame
 ) -> str:
     """
-    Replace a cleaned_publisher name with an indexed_publisher name.
+    Return the indexed_publisher name that corresponds with a clean_publisher string.
 
-    If the cleaned_publisher name exists in the publishers index then it will
-    be replaced by the indexed_publisher entry that corresponds to that name.
-    If it doesn't exist then the name is not changed
+    If the clean_publisher name exists in the publishers index then we will
+      return the indexed_publisher entry that corresponds to that name.
+      If it doesn't exist then the original string is returned
 
     :param publisher_string: This string is checked for in the index,
     and is replaced if found
