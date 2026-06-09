@@ -96,7 +96,7 @@ first_word_match_frames = [
 def test_match_first_word(register_entry, collection_dict, expected_score):
     collection = pd.DataFrame(collection_dict)
     score = collection["publisher"].apply(
-        lambda t: match_score(register_entry.split(" ")[0], t)
+        lambda t: match_score(filter_stop_words(register_entry.split(" ")[0]), t)
     )
     assert score[0] == expected_score
 
