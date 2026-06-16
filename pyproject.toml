@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.scripts]
-mm = "matchmaker.main:main"
+mm = "cli.main:main"
 
 [build-system]
 requires = ["hatchling", "uv-dynamic-versioning"]

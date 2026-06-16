@@ -6,7 +6,7 @@ create a publishers index.
 import argparse
 import logging
 
-from cli import publisher_index, titles_match, n_gram_list
+from matchmaker import publisher_index, titles_match, n_gram_list
 from pathlib import Path
 
 

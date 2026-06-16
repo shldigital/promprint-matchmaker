@@ -2,7 +2,7 @@ import glob
 import pandas as pd
 import pytest
 
-from src.cli.n_gram_list import main
+from src.matchmaker.n_gram_list import main
 from lib.n_gram import n_gram_frequency, multi_n_gram_frequency, sort_n_grams_by_degree
 from pandas.testing import assert_frame_equal, assert_series_equal
 from pathlib import Path

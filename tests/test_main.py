@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 
-from matchmaker.main import main
+from cli.main import main
 
 register_file = "./tests/test_files/test_register_short.csv"
 collection_file = "./tests/test_files/test_collection_short.tsv"
