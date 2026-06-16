@@ -108,7 +108,7 @@ def match_titles(
     ]
     index, row = register_row
     title = row["clean_title"]
-    publisher = row["publisher"]
+    publisher = row["clean_publisher"]
     matches = pd.DataFrame(columns=match_columns)
     if not isinstance(title, str):
         return matches
@@ -128,14 +128,14 @@ def match_titles(
 
         # publisher match doesn't use `short_len` because entries are all expected
         # to be short
-        scores["publisher_score"] = collection["publisher"].apply(
+        scores["publisher_score"] = collection["clean_publisher"].apply(
             lambda p: match_score(publisher, p)
         )
 
         # Creator matches only looks at the first word of the
         # register title, as long as it's not a stopword
         title_first_word = filter_stop_words(title.split(" ")[0])
-        scores["creator_score"] = collection["creator"].apply(
+        scores["creator_score"] = collection["clean_creator"].apply(
             lambda c: match_score(title_first_word, c)
         )
 
