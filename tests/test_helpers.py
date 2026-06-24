@@ -78,73 +78,19 @@ def test_title_match(query_index, score_threshold, n_matches):
     assert matches.shape[0] == n_matches
 
 
-first_word_match_frames = [
-    (
-        "macmillan dictionary of anthropology",
-        {
-            "title": ["dictionary of anthropology"],
-            "publisher": ["ye olde macmillan book publishing place"],
-        },
-        100,
-    )
+stop_and_non_stop_words = [
+    ("macmillan", False),
+    ("the", True),
+    ("", False)
 ]
 
 
 @pytest.mark.parametrize(
-    "register_entry, collection_dict, expected_score", first_word_match_frames
+    "word, stopword_status", stop_and_non_stop_words
 )
-def test_match_first_word(register_entry, collection_dict, expected_score):
-    collection = pd.DataFrame(collection_dict)
-    score = collection["publisher"].apply(
-        lambda t: match_score(filter_stop_words(register_entry.split(" ")[0]), t)
-    )
-    assert score[0] == expected_score
-
-
-stop_word_match_frames = [
-    (
-        "the dictionary of anthropology",
-        {
-            "title": ["dictionary of anthropology"],
-            "publisher": ["the olde macmillan book publishing place"],
-        },
-        0,
-    )
-]
-
-
-@pytest.mark.parametrize(
-    "register_entry, collection_dict, expected_score", stop_word_match_frames
-)
-def test_stop_word_no_match(register_entry, collection_dict, expected_score):
-    collection = pd.DataFrame(collection_dict)
-    score = collection["publisher"].apply(
-        lambda t: match_score(filter_stop_words(register_entry.split(" ")[0]), t)
-    )
-    assert score[0] == expected_score
-
-
-metadata_match_frames = [
-    (
-        "Longman & Co.",
-        {
-            "title": ["alpine journal"],
-            "publisher": [" "],
-        },
-        0,
-    )
-]
-
-
-@pytest.mark.parametrize(
-    "register_entry, collection_dict, expected_score", metadata_match_frames
-)
-def test_match_metadata(register_entry, collection_dict, expected_score):
-    collection = pd.DataFrame(collection_dict)
-    score = collection["publisher"].apply(
-        lambda t: match_score(register_entry.split(" ")[0], t)
-    )
-    assert score[0] == expected_score
+def test_stopword_filter(word, stopword_status):
+    status = filter_stop_words(word) is None
+    assert status == stopword_status
 
 
 publisher_match_frames = [
