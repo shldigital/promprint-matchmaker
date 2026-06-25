@@ -152,6 +152,20 @@ match_rows = [
         },
     ),
     (
+        # Test that a string that becomes empty after substring deletion
+        # scores a match (a decision we made)
+        {
+            "clean_title_register": ["quick brown"],
+            "clean_title_collection": ["the quick brown"],
+        },
+        {
+            "n-gram match": [True],
+            "n-gram": ["quick brown"],
+            "substring score": 100,
+            "match": [True],
+        },
+    ),
+    (
         {
             "clean_title_register": ["the terrifying black dog"],
             "clean_title_collection": ["the terrifying black frog"],
