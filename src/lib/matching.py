@@ -110,6 +110,11 @@ def match_titles(
     index, row = register_row
     title = row["clean_title"]
     publisher = row["clean_publisher"]
+
+    # Creator matches only looks at the first word of the
+    # register title, as long as it's not a stopword
+    creator_guess = filter_stop_words(title.split(" ")[0])
+
     matches = pd.DataFrame(columns=match_columns)
     if not isinstance(title, str):
         return matches
@@ -133,11 +138,8 @@ def match_titles(
             lambda p: match_score(publisher, p)
         )
 
-        # Creator matches only looks at the first word of the
-        # register title, as long as it's not a stopword
-        title_first_word = filter_stop_words(title.split(" ")[0])
         scores["creator_score"] = collection["clean_creator"].apply(
-            lambda c: match_score(title_first_word, c)
+            lambda c: match_score(creator_guess, c)
         )
 
         matches = matches.join(scores, on="id_collection")
@@ -146,7 +148,7 @@ def match_titles(
             [index] * matches.shape[0], index=matches.index
         )
         matches["creator_guess"] = pd.Series(
-            [filter_stop_words(title.split(" ")[0])] * matches.shape[0],
+            [creator_guess] * matches.shape[0],
             index=matches.index,
         )
 
