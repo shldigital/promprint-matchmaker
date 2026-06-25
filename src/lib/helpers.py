@@ -3,17 +3,24 @@
 import nltk
 import pandas as pd
 
-from nltk.corpus import stopwords
+from nltk.corpus import stopwords, words
 from typing import Optional
 from pathlib import Path
 
 nltk.download("stopwords")
 stopwords = set(stopwords.words("english"))
+nltk.download("words")
+dictionary_words = set(words.words())
 
 
 def filter_stop_words(text: str) -> Optional[str]:
     """Replace stopwords with None."""
     return text if text not in stopwords else None
+
+
+def filter_english_words(text: str) -> Optional[str]:
+    """Replace english words with None."""
+    return text if text not in dictionary_words else None
 
 
 def apply_publishers_index(
