@@ -39,7 +39,10 @@ def find_index(subseq, seq):
 
 
 def match_score(
-    text_1: str, text_2: str, match_empty: bool = False, short_len: Optional[int] = None
+    text_1: Optional[str],
+    text_2: Optional[str],
+    match_empty: bool = False,
+    short_len: Optional[int] = None,
 ) -> int:
     """
     Return the similary score of two input texts.
@@ -65,6 +68,8 @@ def match_score(
         # the case where both entries are just a frequent n-gram but gives the
         # same result as without this exception (score 100)
         return 100
+    if (text_1 is None) or (text_2 is None):
+        return None
     if short_len:
         toks = [text_1.split(" "), text_2.split(" ")]
         toks.sort(key=len)

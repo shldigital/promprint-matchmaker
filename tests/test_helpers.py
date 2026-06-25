@@ -46,12 +46,20 @@ def test_empty_string_match_score():
     assert match_score("", "a string") == 0
 
 
-def test_none_match_score():
-    assert match_score(None, "a string") == 0
-
-
 def test_empty_strings_match():
     assert match_score("", "") == 100
+
+
+none_data = [
+    ("string", None),
+    (None, "string"),
+    (None, None),
+]
+
+
+@pytest.mark.parametrize("text_1, text_2", none_data)
+def test_none_strings_return_none(text_1, text_2):
+    assert match_score(text_1, text_2) is None
 
 
 match_title_data = [
@@ -78,16 +86,10 @@ def test_title_match(query_index, score_threshold, n_matches):
     assert matches.shape[0] == n_matches
 
 
-stop_and_non_stop_words = [
-    ("macmillan", False),
-    ("the", True),
-    ("", False)
-]
+stop_and_non_stop_words = [("macmillan", False), ("the", True), ("", False)]
 
 
-@pytest.mark.parametrize(
-    "word, stopword_status", stop_and_non_stop_words
-)
+@pytest.mark.parametrize("word, stopword_status", stop_and_non_stop_words)
 def test_stopword_filter(word, stopword_status):
     status = filter_stop_words(word) is None
     assert status == stopword_status
@@ -329,7 +331,7 @@ def test_first_word_drop_condition(match_row_cols, expected_row_cols):
         "clean_title_register",
         "clean_title_collection",
         80,
-        drop_first=True
+        drop_first=True,
     )
     expected_row = match_row_cols.copy()
     expected_row.update(expected_row_cols)
