@@ -171,7 +171,7 @@ def n_gram_substring_match(
     match_col_2: str,
     score_threshold: int,
     n_gram_count_cutoff: Optional[int] = None,
-    drop_first: bool = False
+    drop_first: bool = False,
 ) -> pd.DataFrame:
     """
     Evaluates string similarity between column data by identifying common n-grams and
