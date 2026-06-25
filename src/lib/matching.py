@@ -103,6 +103,7 @@ def match_titles(
     :type word_threshold: int
     """
     match_columns = [
+        "creator_guess",
         "id_register",
         "id_collection",
     ]
@@ -143,6 +144,10 @@ def match_titles(
         matches = matches[matches["title_score"] > score_threshold]
         matches["id_register"] = pd.Series(
             [index] * matches.shape[0], index=matches.index
+        )
+        matches["creator_guess"] = pd.Series(
+            [filter_stop_words(title.split(" ")[0])] * matches.shape[0],
+            index=matches.index,
         )
 
         # Add all the collection item metadata into the match frame
