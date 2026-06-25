@@ -108,8 +108,8 @@ def match_titles(
         "id_collection",
     ]
     index, row = register_row
-    title = row["clean_title"]
-    publisher = row["clean_publisher"]
+    title = str(row["clean_title"])
+    publisher = str(row["clean_publisher"])
 
     # Creator matches only looks at the first word of the
     # register title, as long as it's not an English word
