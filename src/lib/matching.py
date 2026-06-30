@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from lib.helpers import filter_english_words
+from lib.helpers import filter_stop_words
 from thefuzz import fuzz
 from typing import Optional
 
@@ -116,9 +116,7 @@ def match_titles(
     title = str(row["clean_title"])
     publisher = str(row["clean_publisher"])
 
-    # Creator matches only looks at the first word of the
-    # register title, as long as it's not an English word
-    creator_guess = filter_english_words(title.split(" ")[0])
+    creator_guess = filter_stop_words(title.split(" ")[0])
 
     matches = pd.DataFrame(columns=match_columns)
     if not isinstance(title, str):
