@@ -82,8 +82,8 @@ def match_score(
     :type text_2: str
     :param match_empty: if true returns a score of 100 when one string is empty
     :type match_empty: bool
-    :param short_title_limit: If `short_title_limit` is given then texts with fewer tokens than
-    this are only matched at the beginning of longer texts.
+    :param short_title_limit: If `short_title_limit` is given then texts with this number of
+      tokens or less than this are only matched at the beginning of longer texts.
     :type short_title_limit: Optional[int]
     :return: Match score indicating how similar the texts are
     :rtype: int
@@ -156,6 +156,10 @@ def match_titles(
     if collection.shape[0] > 0:
         matches["id_collection"] = collection.index
         scores = pd.DataFrame()
+
+        scores["is_short"] = collection["clean_title"].apply(
+            lambda t: check_titles_short(title, t, short_title_limit=3)[0]
+        )
 
         # scores will have the same index as collection
         scores["title_score"] = collection["clean_title"].apply(
