@@ -2,12 +2,46 @@ import pandas as pd
 import pytest
 
 from lib.helpers import filter_stop_words, apply_publishers_index
-from lib.matching import match_score, match_titles, n_gram_substring_match
+from lib.matching import (
+    check_titles_short,
+    match_score,
+    match_titles,
+    n_gram_substring_match,
+)
 from pandas.testing import assert_frame_equal
 
 register_file = "./tests/test_files/test_register_cleaned.csv"
 collection_file = "./tests/test_files/test_collection_cleaned.tsv"
 index_file = "./tests/test_files/test_publisher_index.csv"
+
+
+short_title_test_data = [
+    ("a quick brown fox", "the quick brown fox", 3, False),
+    ("the quick brown fox", "quick brown fox", 3, True),
+    ("slow brown fox", "quick brown fox", 3, True),
+]
+
+
+@pytest.mark.parametrize(
+    "text_1, text_2, short_title_limit, is_short_expected", short_title_test_data
+)
+def test_short_check(text_1, text_2, short_title_limit, is_short_expected):
+    is_short, _ = check_titles_short(text_1, text_2, short_title_limit)
+    assert is_short == is_short_expected
+
+
+short_title_order_test_data = [
+    ("a quick brown fox", "the quick brown fox", "a quick brown fox"),
+    ("the quick brown fox", "quick brown fox", "quick brown fox"),
+    ("slow brown fox", "quick brown fox", "slow brown fox"),
+]
+
+
+@pytest.mark.parametrize("text_1, text_2, shortest", short_title_order_test_data)
+def test_short_order(text_1, text_2, shortest):
+    _, titles_tokens = check_titles_short(text_1, text_2, 3)
+    assert " ".join(titles_tokens[0]) == shortest
+
 
 four_token_partial_match_data = [
     ("quick brown fox jumps", "quick brown fox jumps over", 100),

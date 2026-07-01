@@ -38,6 +38,33 @@ def find_index(subseq, seq):
         return -1
 
 
+def check_titles_short(
+    text_1: Optional[str],
+    text_2: Optional[str],
+    short_title_limit: int,
+) -> dict[bool, list[str], list[str]]:
+    """
+    Check if either space-tokenised text passed in is short.
+
+    :param text_1: First piece of text to check
+    :type text_1: str
+    :param text_2: Second piece of text to check
+    :type text_2: str
+    :param short_title_limit: If `short_title_limit` is given then texts with fewer tokens than
+    this are only matched at the beginning of longer texts.
+    :type short_title_limit: int
+
+    :return: dictionary with short-status and the two original texts, tokenised
+    :rtype: dict[bool, list[str], list[str]]
+    """
+    is_short = False
+    toks = [text_1.split(" "), text_2.split(" ")]
+    toks.sort(key=len)
+    if len(toks[0]) <= short_title_limit:
+        is_short = True
+    return (is_short, (toks[0], toks[1]))
+
+
 def match_score(
     text_1: Optional[str],
     text_2: Optional[str],
@@ -70,12 +97,12 @@ def match_score(
         return 100
     if (text_1 is None) or (text_2 is None):
         return None
+    is_short = False
     if short_title_limit:
-        toks = [text_1.split(" "), text_2.split(" ")]
-        toks.sort(key=len)
-        if len(toks[0]) <= short_title_limit:
-            text_1 = " ".join(toks[0])
-            text_2 = " ".join(toks[1][: short_title_limit + 1])
+        is_short, titles_tokens = check_titles_short(text_1, text_2, short_title_limit)
+    if is_short:
+        text_1 = " ".join(titles_tokens[0])
+        text_2 = " ".join(titles_tokens[1][: short_title_limit + 1])
     return fuzz.partial_ratio(text_1, text_2)
 
 
