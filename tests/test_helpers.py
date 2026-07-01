@@ -34,12 +34,12 @@ three_token_partial_match_data = [
 
 @pytest.mark.parametrize("text_1, text_2, score", four_token_partial_match_data)
 def test_four_token_partial_match_score(text_1, text_2, score):
-    assert match_score(text_1, text_2, short_len=4) == score
+    assert match_score(text_1, text_2, short_title_limit=3) == score
 
 
 @pytest.mark.parametrize("text_1, text_2, score", three_token_partial_match_data)
 def test_three_token_partial_match_score(text_1, text_2, score):
-    assert match_score(text_1, text_2, short_len=4) == score
+    assert match_score(text_1, text_2, short_title_limit=3) == score
 
 
 def test_empty_string_match_score():

@@ -42,7 +42,7 @@ def match_score(
     text_1: Optional[str],
     text_2: Optional[str],
     match_empty: bool = False,
-    short_len: Optional[int] = None,
+    short_title_limit: Optional[int] = None,
 ) -> int:
     """
     Return the similary score of two input texts.
@@ -55,9 +55,9 @@ def match_score(
     :type text_2: str
     :param match_empty: if true returns a score of 100 when one string is empty
     :type match_empty: bool
-    :param short_len: If `short_len` is given then texts with fewer tokens than
+    :param short_title_limit: If `short_title_limit` is given then texts with fewer tokens than
     this are only matched at the beginning of longer texts.
-    :type short_len: Optional[int]
+    :type short_title_limit: Optional[int]
     :return: Match score indicating how similar the texts are
     :rtype: int
     """
@@ -70,12 +70,12 @@ def match_score(
         return 100
     if (text_1 is None) or (text_2 is None):
         return None
-    if short_len:
+    if short_title_limit:
         toks = [text_1.split(" "), text_2.split(" ")]
         toks.sort(key=len)
-        if len(toks[0]) < short_len:
+        if len(toks[0]) <= short_title_limit:
             text_1 = " ".join(toks[0])
-            text_2 = " ".join(toks[1][:short_len])
+            text_2 = " ".join(toks[1][: short_title_limit + 1])
     return fuzz.partial_ratio(text_1, text_2)
 
 
@@ -132,10 +132,10 @@ def match_titles(
 
         # scores will have the same index as collection
         scores["title_score"] = collection["clean_title"].apply(
-            lambda t: match_score(title, t, short_len=4)
+            lambda t: match_score(title, t, short_title_limit=3)
         )
 
-        # publisher match doesn't use `short_len` because entries are all expected
+        # publisher match doesn't use `short_title_limit` because entries are all expected
         # to be short
         scores["publisher_score"] = collection["clean_publisher"].apply(
             lambda p: match_score(publisher, p)
