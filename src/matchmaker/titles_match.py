@@ -24,7 +24,6 @@ register_columns = [
 
 
 def main(
-    debug: bool,
     register: Path,
     collection: Path,
     outpath: Path,
@@ -33,6 +32,7 @@ def main(
     processes: int,
     publishers_index: Path = None,
     n_gram_index: Path = None,
+    debug: bool = False,
     **kwargs: Any,
 ) -> None:
     """
