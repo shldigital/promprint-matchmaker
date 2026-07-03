@@ -30,7 +30,7 @@ def main(
     collected_df = collect_columns(catalog, columns)
     for column in columns:
         token_list = collected_df[column].str.split()
-        n_gram_frame = multi_n_gram_frequency(token_list)
+        n_gram_frame = multi_n_gram_frequency(token_list, max_degree=6)
 
         basename = f"n_gram_{column}"
         list_file = basename + ".csv"
