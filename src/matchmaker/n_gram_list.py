@@ -3,6 +3,7 @@ from lib.n_gram import multi_n_gram_frequency, sort_n_grams_by_degree
 from pathlib import Path
 from typing import Any
 
+n_top = 100  # Number of highest frequency n-grams to collect in top list
 
 def main(
     outpath: Path,
@@ -30,7 +31,12 @@ def main(
     for column in columns:
         token_list = collected_df[column].str.split()
         n_gram_frame = multi_n_gram_frequency(token_list)
+
         basename = f"n_gram_{column}"
         list_file = basename + ".csv"
         n_gram_frame = n_gram_frame.loc[n_gram_frame["count"] > 2]
         n_gram_frame.to_csv(outpath / list_file)
+
+        n_gram_top = n_gram_frame.iloc[:n_top]
+        top_file = basename + "_top.csv"
+        n_gram_top.to_csv(outpath / top_file)
