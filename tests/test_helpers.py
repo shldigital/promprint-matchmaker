@@ -120,6 +120,36 @@ def test_title_match(query_index, score_threshold, n_matches):
     assert matches.shape[0] == n_matches
 
 
+match_title_top_only_data = [
+    (1, 79, 1),
+    (2, 90, 0),
+    (5, 79, 1),
+]
+
+
+@pytest.mark.parametrize(
+    "query_index, score_threshold, n_matches", match_title_top_only_data
+)
+def test_title_match_top_only(query_index, score_threshold, n_matches):
+    register = pd.read_csv(register_file)
+    register = register.set_index("id")
+    register_row = list(register.iterrows())[query_index]
+    collection = pd.read_csv(collection_file, sep="\t")
+    collection = collection.set_index("id")
+    word_threshold = 1
+
+    matches: pd.DataFrame = match_titles(
+        register_row,
+        collection,
+        register,
+        score_threshold,
+        word_threshold,
+        top_only=True,
+    )
+
+    assert matches.shape[0] == n_matches
+
+
 stop_and_non_stop_words = [("macmillan", False), ("the", True), ("", False)]
 
 

@@ -112,6 +112,7 @@ def match_titles(
     register: pd.DataFrame,
     score_threshold: int,
     word_threshold: int,
+    top_only: bool = False
 ) -> pd.DataFrame:
     """
     Score matches of register_row with all rows in the given collection.
@@ -194,6 +195,8 @@ def match_titles(
             matches, how="inner", lsuffix="_register", rsuffix="_collection"
         )
         matches = matches.sort_values(by="title_score", ascending=False)
+        if top_only:
+            matches = matches.head(1)
     return matches
 
 

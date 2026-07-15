@@ -89,6 +89,7 @@ def main(
         register=register,
         score_threshold=score_threshold,
         word_threshold=word_threshold,
+        top_only = True,
     )
 
     if processes > 1:
