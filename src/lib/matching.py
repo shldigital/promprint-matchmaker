@@ -175,7 +175,7 @@ def match_titles(
         )
 
         matches = matches.join(scores, on="id_collection")
-        matches = matches[matches["title_score"] > score_threshold]
+        matches = matches[matches["title_score"] >= score_threshold]
         matches["id_register"] = pd.Series(
             [index] * matches.shape[0], index=matches.index
         )
@@ -278,7 +278,7 @@ def n_gram_substring_match(
                 substrings.append(" ".join(entry_tokens))
 
             score = match_score(substrings[0], substrings[1], match_empty=True)
-            is_match = score > score_threshold
+            is_match = score >= score_threshold
 
             index_diff = n_gram_indices[0] - n_gram_indices[1]
             if drop_first and (abs(index_diff) == 1) and not is_match:
@@ -288,7 +288,7 @@ def n_gram_substring_match(
                 del match_entries[greater_index][0]
                 substrings = list(map(lambda tokens: " ".join(tokens), match_entries))
                 score = match_score(substrings[0], substrings[1], match_empty=True)
-                is_match = score > score_threshold
+                is_match = score >= score_threshold
             break  # Match status is now definitive
     match_row["n-gram match"] = n_gram_match
     match_row["n-gram"] = matched_n_gram
