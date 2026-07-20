@@ -1,15 +1,14 @@
 from lib.helpers import collect_columns
-from lib.n_gram import multi_n_gram_frequency, sort_n_grams_by_degree
+from lib.n_gram import multi_n_gram_frequency
 from pathlib import Path
 from typing import Any
 
-n_top = 100  # Number of highest frequency n-grams to collect in top list
 
 def main(
     outpath: Path,
     catalog: list[Path],
     columns: list[str],
-    score_threshold: int,
+    n_top: int,
     debug: bool = False,
     **kwargs: Any,
 ):
@@ -22,9 +21,8 @@ def main(
     :type catalog: pathlib.Path
     :param columns: Which data columns to create n-gram lists from, must exist in both catalogs
     :type columns: list[str]
-    :param score_threshold: n-grams with similarity higher than this threshold are
-      grouped together
-    :type score_threshold: int
+    :param n_top: number of top n-grams to include in the index
+    :type n_top: int
     """
     outpath.mkdir(parents=False, exist_ok=True)
     collected_df = collect_columns(catalog, columns)

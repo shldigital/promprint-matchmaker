@@ -150,13 +150,6 @@ def main(args=None) -> None:
         default=100,
         help="Top n-grams to include in the index",
     )
-    n_gram_parser.add_argument(
-        "-t",
-        "--score_threshold",
-        type=int,
-        default=100,
-        help="Threshold fuzzy matching score (0-100), only keep matches with scores above this value",
-    )
 
     n_gram_parser.set_defaults(func=n_gram_list.main)
 
