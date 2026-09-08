@@ -4,7 +4,7 @@ import datetime
 import pandas as pd
 
 from functools import partial
-from lib.helpers import apply_publishers_index
+from lib.helpers import apply_publishers_index, save_run_config
 from lib.matching import match_titles, n_gram_substring_match
 from math import floor
 from multiprocessing import Pool
@@ -63,7 +63,16 @@ def main(
     :param processes: Number of threads to use in search, if > 1 will run searches in parallel
     :type processes: int
     """
+    arguments = locals()
     outpath.mkdir(parents=False, exist_ok=True)
+
+    run_metadata = {
+        "script": {__file__},
+    }
+    run_metadata.update(arguments)
+
+    save_run_config(outpath, run_metadata)
+
     register = pd.read_csv(register)
     if not all(name in register.columns for name in register_columns):
         raise KeyError(

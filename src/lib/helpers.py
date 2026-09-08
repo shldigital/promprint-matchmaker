@@ -1,9 +1,13 @@
 """Helper functions for text matching."""
 
+import datetime
 import nltk
+import os
 import pandas as pd
 
+from git import Repo
 from nltk.corpus import stopwords, words
+from os.path import dirname
 from typing import Optional
 from pathlib import Path
 
@@ -11,6 +15,21 @@ nltk.download("stopwords")
 stopwords = set(stopwords.words("english"))
 nltk.download("words")
 dictionary_words = set(words.words())
+
+
+def save_run_config(save_folder: str, extras: dict = None):
+    """Save run configuration and additional metadata to file."""
+    now = datetime.datetime.now().strftime("%Y-%m-%d-%Hh%Mm%Ss")
+    Path(save_folder).mkdir(parents=False, exist_ok=True)
+    run_config_path: Path = Path(save_folder) / f"{now}_run_config.txt"
+    with open(run_config_path, "x") as f:
+        repo_path = dirname(dirname(os.path.abspath(dirname(__file__))))
+        commit = Repo(repo_path).heads.main.commit
+        f.write(f"repo location: {repo_path}\n")
+        f.write(f"repo commit: {commit}\n")
+        f.write(f"run start: {now}\n")
+        for key, item in extras.items():
+            f.write(f"{key}: {item}\n")
 
 
 def filter_stop_words(text: str) -> Optional[str]:

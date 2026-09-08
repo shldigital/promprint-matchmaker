@@ -5,6 +5,7 @@ description = "Search algorithms for matching book title strings across differen
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "gitpython>=3.1.61",
     "matplotlib>=3.10.8",
     "nltk>=3.9.2",
     "pandas>=2.3.3",

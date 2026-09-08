@@ -1,4 +1,4 @@
-from lib.helpers import collect_columns
+from lib.helpers import collect_columns, save_run_config
 from lib.n_gram import multi_n_gram_frequency
 from pathlib import Path
 from typing import Any
@@ -24,7 +24,16 @@ def main(
     :param n_top: number of top n-grams to include in the index
     :type n_top: int
     """
+    arguments = locals()
+
     outpath.mkdir(parents=False, exist_ok=True)
+    run_metadata = {
+        "script": {__file__},
+    }
+    run_metadata.update(arguments)
+
+    save_run_config(outpath, run_metadata)
+
     collected_df = collect_columns(catalog, columns)
     for column in columns:
         token_list = collected_df[column].str.split()
