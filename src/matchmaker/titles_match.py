@@ -16,10 +16,9 @@ register_columns = [
     "block",
     "page",
     "line",
-    "title",
-    "publisher",
-    "creator",
+    "clean_creator",
     "clean_title",
+    "clean_publisher",
 ]
 
 
