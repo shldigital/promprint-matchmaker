@@ -7,7 +7,7 @@ register_file = "./tests/test_files/test_register_short.csv"
 collection_file = "./tests/test_files/test_collection_short.tsv"
 bad_register_file = "./tests/test_files/bad_file.txt"
 publisher_index_file = "./tests/test_files/test_publisher_index.csv"
-n_gram_index_file = "./tests/test_files/test_n_gram_index.csv"
+n_gram_index_folder = "./tests/test_files/"
 
 test_catalog_1 = "./tests/test_files/test_register_short.csv"
 test_catalog_2 = "./tests/test_files/test_collection_short.tsv"
@@ -46,7 +46,7 @@ def test_titles_with_n_gram_index(tmp_path):
         register_file,
         collection_file,
         str(tmp_path),
-        f"--n_gram_index={n_gram_index_file}",
+        f"--n_gram_index={n_gram_index_folder}",
     ]
     main(test_args)
 
