@@ -79,6 +79,11 @@ def main(
         )
     register = register.set_index("id")
 
+    # Try opening the file early in case of errors
+    if n_gram_index is not None:
+        n_gram_index_file = n_gram_index / "n_gram_clean_title_top.csv"
+        n_grams = pd.read_csv(n_gram_index_file, index_col=0)
+
     collection = pd.read_csv(collection, sep="\t")
     collection = collection.set_index("id")
 
@@ -111,7 +116,7 @@ def main(
     if n_gram_index is not None:
         substring_match_p = partial(
             n_gram_substring_match,
-            n_gram_data=pd.read_csv(n_gram_index, index_col=0),
+            n_gram_data=n_grams,
             match_col_1="clean_title_register",
             match_col_2="clean_title_collection",
             score_threshold=score_threshold,
