@@ -94,6 +94,19 @@ def test_calling_n_gram_list_with_custom_degrees(tmp_path):
     assert outfile.exists()
 
 
+def test_calling_n_gram_list_with_custom_frequency(tmp_path):
+    test_args = [
+        "n_grams",
+        str(tmp_path),
+        test_catalog_1,
+        test_catalog_2,
+        "--min_frequency=2",
+    ]
+    outfile = tmp_path / "n_gram_clean_title.csv"
+    main(test_args)
+    assert outfile.exists()
+
+
 def test_calling_n_gram_list_with_multiple_columns(tmp_path):
     columns = ["clean_title", "clean_publisher"]
     test_args = [

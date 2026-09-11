@@ -11,6 +11,7 @@ def main(
     n_top: int,
     min_degree: int,
     max_degree: int,
+    min_frequency: int,
     debug: bool = False,
     **kwargs: Any,
 ):
@@ -29,6 +30,8 @@ def main(
     :type min_degree: int
     :param max_degree: maximum degree of n-gram to include in output list
     :type max_degree: int
+    :param min_frequency: minimum frequency of n-gram to include in output list
+    :type min_frequency: int
     """
     arguments = locals()
 
@@ -49,7 +52,7 @@ def main(
 
         basename = f"n_gram_{column}"
         list_file = basename + ".csv"
-        n_gram_frame = n_gram_frame.loc[n_gram_frame["count"] > 2]
+        n_gram_frame = n_gram_frame.loc[n_gram_frame["count"] > min_frequency]
         n_gram_frame.to_csv(outpath / list_file)
 
         n_gram_top = n_gram_frame.iloc[:n_top]

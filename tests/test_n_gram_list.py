@@ -21,7 +21,7 @@ temp_output = Path("./tests/output_examples")
     "test_paths", single_and_multi_file, ids=["single", "multiple"]
 )
 def test_single_and_multi_file(test_paths, tmp_path):
-    main(temp_output, test_paths, ["clean_title"], 100, 1, 6)
+    main(temp_output, test_paths, ["clean_title"], 100, 1, 6, 2)
     csv_outputs = glob.glob(str(temp_output) + "/*.csv")
     png_outputs = glob.glob(str(temp_output) + "/*.png")
     assert len(csv_outputs) > 0
@@ -30,7 +30,7 @@ def test_single_and_multi_file(test_paths, tmp_path):
 
 def test_missing_column_throws(tmp_path):
     with pytest.raises(KeyError):
-        main(tmp_path, test_collections, ["spurious_column"], 100, 1, 6)
+        main(tmp_path, test_collections, ["spurious_column"], 100, 1, 6, 2)
 
 
 n_gram_test_data = [

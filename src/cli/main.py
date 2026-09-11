@@ -162,6 +162,12 @@ def main(args=None) -> None:
         default=6,
         help="Max degree of n-gram to include",
     )
+    n_gram_parser.add_argument(
+        "--min_frequency",
+        type=int,
+        default=2,
+        help="Minimum frequency of n-gram to include",
+    )
 
     n_gram_parser.set_defaults(func=n_gram_list.main)
 
