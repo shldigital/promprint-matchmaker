@@ -27,6 +27,7 @@ def main(
     collection: Path,
     outpath: Path,
     score_threshold: int,
+    substring_score_threshold: int,
     word_threshold: int,
     processes: int,
     publishers_index: Path = None,
@@ -52,6 +53,9 @@ def main(
     :type outpath: Path
     :param score_threshold: matches are only counted if the match score is
       above this threshold
+    :type score_threshold: int
+    :param substring_score_threshold: substring matches are only counted if the
+      match score is above this threshold
     :type score_threshold: int
     :param word_threshold: Titles in the collection must be this length or
       longer to be considered for matching
@@ -102,7 +106,7 @@ def main(
         register=register,
         score_threshold=score_threshold,
         word_threshold=word_threshold,
-        top_only = True,
+        top_only=True,
     )
 
     if processes > 1:
@@ -119,11 +123,9 @@ def main(
             n_gram_data=n_grams,
             match_col_1="clean_title_register",
             match_col_2="clean_title_collection",
-            score_threshold=score_threshold,
-            n_gram_count_cutoff=floor(
-                (register.shape[0] + collection.shape[0]) / 1000
-            ),
-            drop_first=True
+            score_threshold=substring_score_threshold,
+            n_gram_count_cutoff=floor((register.shape[0] + collection.shape[0]) / 1000),
+            drop_first=True,
         )
 
         if processes > 1:

@@ -69,6 +69,13 @@ def main(args=None) -> None:
         help="Threshold fuzzy matching score (0-100), only keep matches with scores above this value",
     )
     titles_parser.add_argument(
+        "-s",
+        "--substring_score_threshold",
+        type=int,
+        default=79,
+        help="Threshold fuzzy matching score (0-100), only keep substring matches with scores above this value",
+    )
+    titles_parser.add_argument(
         "-w",
         "--word_threshold",
         type=int,
@@ -95,7 +102,7 @@ def main(args=None) -> None:
 
     publishers_parser.add_argument(
         "collections",
-        nargs='+',
+        nargs="+",
         type=lambda p: Path(p),
         help="Path to collections with publishers to be collated",
     )
@@ -138,7 +145,7 @@ def main(args=None) -> None:
     n_gram_parser.add_argument(
         "-c",
         "--columns",
-        nargs='+',
+        nargs="+",
         type=str,
         default=["clean_title"],
         help="Columns to create n-grams for, will create a separate list per column",
