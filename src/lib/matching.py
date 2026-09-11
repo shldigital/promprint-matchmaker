@@ -131,6 +131,9 @@ def match_titles(
     :param word_threshold: Titles in the collection must be this length or
          longer to be considered for matching
     :type word_threshold: int
+    :param top_only: If False, basic matching returns all records that score
+      above score_threshold. If True, returns only the top scoring match
+    :type top_only: bool
     """
     match_columns = [
         "creator_guess",
