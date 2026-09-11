@@ -9,6 +9,8 @@ def main(
     catalog: list[Path],
     columns: list[str],
     n_top: int,
+    min_degree: int,
+    max_degree: int,
     debug: bool = False,
     **kwargs: Any,
 ):
@@ -23,6 +25,10 @@ def main(
     :type columns: list[str]
     :param n_top: number of top n-grams to include in the index
     :type n_top: int
+    :param min_degree: minimum degree of n-gram to include in output list
+    :type min_degree: int
+    :param max_degree: maximum degree of n-gram to include in output list
+    :type max_degree: int
     """
     arguments = locals()
 
@@ -37,7 +43,9 @@ def main(
     collected_df = collect_columns(catalog, columns)
     for column in columns:
         token_list = collected_df[column].str.split()
-        n_gram_frame = multi_n_gram_frequency(token_list, max_degree=6)
+        n_gram_frame = multi_n_gram_frequency(
+            token_list, min_degree=min_degree, max_degree=max_degree
+        )
 
         basename = f"n_gram_{column}"
         list_file = basename + ".csv"

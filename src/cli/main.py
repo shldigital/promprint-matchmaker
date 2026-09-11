@@ -150,6 +150,18 @@ def main(args=None) -> None:
         default=100,
         help="Top n-grams to include in the index",
     )
+    n_gram_parser.add_argument(
+        "--min_degree",
+        type=int,
+        default=1,
+        help="Minimum degree of n-gram to include",
+    )
+    n_gram_parser.add_argument(
+        "--max_degree",
+        type=int,
+        default=6,
+        help="Max degree of n-gram to include",
+    )
 
     n_gram_parser.set_defaults(func=n_gram_list.main)
 
