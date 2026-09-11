@@ -114,7 +114,12 @@ def test_title_match(query_index, score_threshold, n_matches):
     word_threshold = 1
 
     matches: pd.DataFrame = match_titles(
-        register_row, collection, register, score_threshold, word_threshold
+        register_row,
+        collection,
+        register,
+        score_threshold,
+        word_threshold,
+        short_title_limit=3,
     )
 
     assert matches.shape[0] == n_matches
@@ -145,6 +150,7 @@ def test_title_match_top_only(query_index, score_threshold, n_matches):
         score_threshold,
         word_threshold,
         top_only=True,
+        short_title_limit=3,
     )
 
     assert matches.shape[0] == n_matches

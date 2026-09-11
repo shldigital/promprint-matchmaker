@@ -89,6 +89,12 @@ def main(args=None) -> None:
         default=1,
         help="Number of threads to use in search, if > 1 will run searches in parallel",
     )
+    titles_parser.add_argument(
+        "--short_title_limit",
+        type=int,
+        default=3,
+        help="If given then texts with fewer tokens than this are only matched at the beginning of longer texts.",
+    )
 
     titles_parser.set_defaults(func=titles_match.main)
 

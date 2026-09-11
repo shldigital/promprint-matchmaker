@@ -9,7 +9,7 @@ from lib.matching import match_titles, n_gram_substring_match
 from math import floor
 from multiprocessing import Pool
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 register_columns = [
     "register",
@@ -30,6 +30,7 @@ def main(
     substring_score_threshold: int,
     word_threshold: int,
     processes: int,
+    short_title_limit: int = None,
     publishers_index: Path = None,
     n_gram_index: Path = None,
     debug: bool = False,
@@ -60,11 +61,14 @@ def main(
     :param word_threshold: Titles in the collection must be this length or
       longer to be considered for matching
     :type word_threshold: int
+    :param processes: Number of threads to use in search, if > 1 will run searches in parallel
+    :type processes: int
+    :param short_title_limit: If given then texts with this number of
+      tokens or less than this are only matched at the beginning of longer texts.
+    :type short_title_limit: Optional[int]
     :param publishers_index: path to a publisher's index. Providing this will cause
       publisher names in the register and collection files to be replaced by their index
     :type publishers_index: Path
-    :param processes: Number of threads to use in search, if > 1 will run searches in parallel
-    :type processes: int
     """
     arguments = locals()
     outpath.mkdir(parents=False, exist_ok=True)
@@ -107,6 +111,7 @@ def main(
         score_threshold=score_threshold,
         word_threshold=word_threshold,
         top_only=True,
+        short_title_limit=short_title_limit,
     )
 
     if processes > 1:

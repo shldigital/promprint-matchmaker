@@ -41,7 +41,7 @@ def find_index(subseq, seq):
 def check_titles_short(
     text_1: Optional[str],
     text_2: Optional[str],
-    short_title_limit: int,
+    short_title_limit: int = None,
 ) -> dict[bool, list[str], list[str]]:
     """
     Check if either space-tokenised text passed in is short.
@@ -60,8 +60,9 @@ def check_titles_short(
     is_short = False
     toks = [text_1.split(" "), text_2.split(" ")]
     toks.sort(key=len)
-    if len(toks[0]) <= short_title_limit:
-        is_short = True
+    if short_title_limit:
+        if len(toks[0]) <= short_title_limit:
+            is_short = True
     return (is_short, (toks[0], toks[1]))
 
 
@@ -112,7 +113,8 @@ def match_titles(
     register: pd.DataFrame,
     score_threshold: int,
     word_threshold: int,
-    top_only: bool = False
+    top_only: bool = False,
+    short_title_limit: int = None,
 ) -> pd.DataFrame:
     """
     Score matches of register_row with all rows in the given collection.
@@ -134,6 +136,9 @@ def match_titles(
     :param top_only: If False, basic matching returns all records that score
       above score_threshold. If True, returns only the top scoring match
     :type top_only: bool
+    :param short_title_limit: If given then texts with this number of
+      tokens or less than this are only matched at the beginning of longer texts.
+    :type short_title_limit: Optional[int]
     """
     match_columns = [
         "creator_guess",
@@ -159,12 +164,14 @@ def match_titles(
         scores = pd.DataFrame()
 
         scores["is_short"] = collection["clean_title"].apply(
-            lambda t: check_titles_short(title, t, short_title_limit=3)[0]
+            lambda t: check_titles_short(title, t, short_title_limit=short_title_limit)[
+                0
+            ]
         )
 
         # scores will have the same index as collection
         scores["title_score"] = collection["clean_title"].apply(
-            lambda t: match_score(title, t, short_title_limit=3)
+            lambda t: match_score(title, t, short_title_limit=short_title_limit)
         )
 
         # publisher match doesn't use `short_title_limit` because entries are all expected
