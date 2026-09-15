@@ -150,11 +150,16 @@ def main(
     # NB this assumes that results have been sorted descending
     top_matches = matches[~matches.index.duplicated(keep="first")]
     top_matches.to_csv(outpath / (output_base + "-top-matches.csv"))
+    full_matches = top_matches[top_matches["match"]]
     unmatched = register.drop(matches.index, axis="index")
     unmatched.to_csv(outpath / (output_base + "-unmatched.csv"))
 
     n_register = register.shape[0]
     n_unmatched = unmatched.shape[0]
     n_matched = n_register - n_unmatched
-    print(f"No. of matched entries: {n_matched}")
-    print(f"No. of unmatched entries: {n_unmatched} / {n_register}")
+    n_full = full_matches.shape[0]
+    n_unmatched_full = n_unmatched + n_matched - n_full
+    print(f"No. of simple matched entries: {n_matched}")
+    print(f"No. of simple unmatched entries: {n_unmatched} / {n_register}")
+    print(f"No. of full matched entries: {n_full}")
+    print(f"No. of full unmatched entries: {n_unmatched_full} / {n_register}")
