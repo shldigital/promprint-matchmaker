@@ -35,11 +35,10 @@ def main(
     """
     arguments = locals()
 
-    outpath.mkdir(parents=False, exist_ok=True)
     run_metadata = {}
     run_metadata.update(arguments)
 
-    save_run_config(outpath, __file__, run_metadata)
+    outpath = save_run_config(outpath, Path(__file__).stem, run_metadata)
 
     collected_df = collect_columns(catalog, columns)
     for column in columns:
