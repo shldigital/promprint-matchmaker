@@ -73,12 +73,10 @@ def main(
     arguments = locals()
     outpath.mkdir(parents=False, exist_ok=True)
 
-    run_metadata = {
-        "script": {__file__},
-    }
+    run_metadata = {}
     run_metadata.update(arguments)
 
-    save_run_config(outpath, run_metadata)
+    save_run_config(outpath, __file__, run_metadata)
 
     register = pd.read_csv(register)
     if not all(name in register.columns for name in register_columns):

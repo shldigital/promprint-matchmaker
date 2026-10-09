@@ -17,19 +17,31 @@ nltk.download("words")
 dictionary_words = set(words.words())
 
 
-def save_run_config(save_folder: str, extras: dict = None):
+def save_run_config(save_folder: Path, script_name: str, extras: dict = {}) -> Path:
     """Save run configuration and additional metadata to file."""
-    now = datetime.datetime.now().strftime("%Y-%m-%d-%Hh%Mm%Ss")
-    Path(save_folder).mkdir(parents=False, exist_ok=True)
-    run_config_path: Path = Path(save_folder) / f"{now}_run_config.txt"
+    repo_path = dirname(dirname(os.path.abspath(dirname(__file__))))
+    repo = Repo(repo_path)
+    commit = Repo(repo_path).heads.main.commit
+
+    now = datetime.datetime.now().strftime("%Y-%m-%d-%Hh%Mm")
+    repo_name = Path(repo_path).stem
+    short_commit = f"{commit}"[:7]
+    is_modified = repo.is_dirty()
+    mod_str = "-mod" if is_modified else ""
+    output_name = f"{now}-{repo_name}-{script_name}-{short_commit}{mod_str}"
+    output_folder = save_folder / output_name
+    output_folder.mkdir(parents=True, exist_ok=True)
+
+    run_config_path: Path = Path(output_folder) / f"{now}_run_config.txt"
     with open(run_config_path, "x") as f:
-        repo_path = dirname(dirname(os.path.abspath(dirname(__file__))))
-        commit = Repo(repo_path).heads.main.commit
         f.write(f"repo location: {repo_path}\n")
+        f.write(f"script name: {script_name}\n")
         f.write(f"repo commit: {commit}\n")
+        f.write(f"repo is modified: {is_modified}\n")
         f.write(f"run start: {now}\n")
         for key, item in extras.items():
             f.write(f"{key}: {item}\n")
+    return output_folder
 
 
 def filter_stop_words(text: str) -> Optional[str]:

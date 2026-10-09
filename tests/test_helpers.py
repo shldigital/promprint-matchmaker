@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from lib.helpers import filter_stop_words, apply_publishers_index
+from lib.helpers import filter_stop_words, apply_publishers_index, save_run_config
 from lib.matching import (
     check_titles_short,
     match_score,
@@ -421,3 +421,16 @@ def test_first_word_drop_condition(match_row_cols, expected_row_cols):
     expected_row.update(expected_row_cols)
     expected_data = pd.DataFrame(expected_row)
     assert_frame_equal(match_row, expected_data.astype(object))
+
+
+def test_save_run_config(tmp_path):
+    out_folder = save_run_config(tmp_path, __file__)
+    assert out_folder.exists()
+
+
+def test_save_run_config_extras(tmp_path):
+    metadata = {"test": True}
+    out_folder = save_run_config(tmp_path, __file__, metadata)
+    config = list(out_folder.glob('*.txt'))[0]
+    with open(config) as f:
+        assert "test: True" in f.read()
